@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="python," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="简介WSGI（web server gataway interface），是一个规范，在python规范中由PEP333说明，用于描述web server和web application的通信，要实现WSGI需要同时实现符合WSGI的web服务器和web应用。其主要目的是为了通过统一的标准解耦服务器和应用，使得应用可以自由和服务器进行搭配，从而避免在选定某种web框架的情况下只能使用特定的服务器的">
+<meta name="keywords" content="python">
+<meta property="og:type" content="article">
+<meta property="og:title" content="WSGI(1):WSGI理解">
+<meta property="og:url" content="http://yoursite.com/2018/01/12/WSGI(1)-WSGI理解/index.html">
+<meta property="og:site_name" content="Yun&#39;s Blog">
+<meta property="og:description" content="简介WSGI（web server gataway interface），是一个规范，在python规范中由PEP333说明，用于描述web server和web application的通信，要实现WSGI需要同时实现符合WSGI的web服务器和web应用。其主要目的是为了通过统一的标准解耦服务器和应用，使得应用可以自由和服务器进行搭配，从而避免在选定某种web框架的情况下只能使用特定的服务器的">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2018/01/12/WSGI(1)-WSGI理解/访问流程.png">
+<meta property="og:image" content="http://yoursite.com/2018/01/12/WSGI(1)-WSGI理解/middle.png">
+<meta property="og:updated_time" content="2018-08-04T03:50:45.564Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="WSGI(1):WSGI理解">
+<meta name="twitter:description" content="简介WSGI（web server gataway interface），是一个规范，在python规范中由PEP333说明，用于描述web server和web application的通信，要实现WSGI需要同时实现符合WSGI的web服务器和web应用。其主要目的是为了通过统一的标准解耦服务器和应用，使得应用可以自由和服务器进行搭配，从而避免在选定某种web框架的情况下只能使用特定的服务器的">
+<meta name="twitter:image" content="http://yoursite.com/2018/01/12/WSGI(1)-WSGI理解/访问流程.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/01/12/WSGI(1)-WSGI理解/"/>
+
+
+
+
+
+  <title>WSGI(1):WSGI理解 | Yun's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Yun's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/01/12/WSGI(1)-WSGI理解/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sawyer">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/mineavatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Yun's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">WSGI(1):WSGI理解</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-12T21:19:19+08:00">
+                2018-01-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/WSGI/" itemprop="url" rel="index">
+                    <span itemprop="name">WSGI</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i> 浏览
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>次
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>WSGI（web server gataway interface），是一个规范，在python规范中由PEP333说明，用于描述web server和web application的通信，要实现WSGI需要同时实现符合WSGI的web服务器和web应用。其主要目的是为了通过统一的标准解耦服务器和应用，使得应用可以自由和服务器进行搭配，从而避免在选定某种web框架的情况下只能使用特定的服务器的问题。</p>
+<h3 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h3><p>1、很多的博客都对wsgi进行了说明和理解，但是这些理解中没有过多的区分一些概念以及wsgi实现的情况；<br>2、我也查看了PEP333的说明，无论是英语原文还是找到的几版翻译，PEP333的描述都比较晦涩；<br>3、网上各种名词很多，会产生一些疑问：</p>
+<ul>
+<li>flask、django等被称为web框架，大部分说明中把他们放在应用层，然而flask依赖于werkzurg，werkzurg有一个server，django本身就是一套完整的服务器+应用的实现，因此往往让我们思考flask、django在wsgi中到底是什么？</li>
+<li>很多博客中使用图或者文字描述wsgi的分层结构，有的里面将wsgi作为一个中间层，但是PEP333中有说明wsgi描述了服务器和应用的api规范，应该是同时包含了服务器端和应用端。所以又有了wsgi server和wsgi app的说法。</li>
+<li>在PEP333中有对于中间件的描述，实际中的中间件是什么样的？</li>
+<li>python的web应用线上用到nginx，apache等，它们是否wsgi server？gunicorn本身是wsgi服务器，在nginx+gunicorn这种组合中，nginx和gunicorn是什么关系？</li>
+</ul>
+<h3 id="WSGI理解"><a href="#WSGI理解" class="headerlink" title="WSGI理解"></a>WSGI理解</h3><p>这里我将说一下我对wsgi的理解。首先说明一下WSGI的http通信的过程，下面是从网上找到的一张图，图中说明了基于WSGI的请求和响应的过程。这张图中将WSGI的实现表示为WSGI Server和WSGI App，我的理解是，WSGI广义的来说是指实现了WSGI接口描述的Server和App，狭义的来说是指Server和App实现的那个部分，所以对于如Apache实现了支持wsgi的扩展mod_wsgi，这种情况下面即只是指这个扩展而已，而应用比较简单，基本框架都是直接按照wsgi app接口去做的实现，不存在支持多种规范的情况。<br>图中说明了从浏览器的请求如何被基于WSGI实现的服务器和应用处理的，其主要步骤如下：</p>
+<ol>
+<li>浏览器发起http请求；</li>
+<li>server处理请求，将其封装成相应的信息，这里在PEP333中规定有一个environ的环境参数；</li>
+<li>server调用app，app是一个对象，在python中app可以是函数，类对象，类，类对象一般都是通过app实现的__call__实现，类一般在__init__实现时带上wsgi约定的参数。比如Flask、bottle的web application是实现了__call__的类。</li>
+<li>app进行逻辑处理，比如从数据库获取数据等；</li>
+<li>返回HTTP状态码和报文头。因为在PEP333的app接口描述中是传入了一个start_response的函数，这个函数在app中调用进行返回所以是直接对浏览器进行返回了；</li>
+<li>返回正文给服务器，一般是返回一个可迭代的对象给server进行处理；</li>
+<li>服务器返回HTTP正文给浏览器。<img src="/2018/01/12/WSGI(1)-WSGI理解/访问流程.png">
+</li>
+</ol>
+<p>通过以上的说明可以知道，Django、Flask等自带的Server，可以认为是WSGI的实现，但是实际生产中这些web框架实现的server能力比较弱，所以其优势在app上，因此被作为app端的框架使用。另外wsgi服务器在python中有一个内置的WSGIREF，可以用于开发环境，实际生产中可以使用gunicorn、uWSGI等，详见：<a href="http://wsgi.readthedocs.io/en/latest/servers.html" target="_blank" rel="noopener">http://wsgi.readthedocs.io/en/latest/servers.html</a>。<br>值得说明的是，gunicorn本身实现其实主要用于动态请求，这样实现比较容易，也不用去模仿好的服务器造轮子，对于没有静态文件请求，只有api访问，业务量不大的时候可以使用，但是业务量比较大的时候可能需要负载均衡，因此实际使用中往往是通过nginx+gunicorn来使用的。uWSGI使用了一个uwsgi的协议，是该服务器的独占协议。这里容易误导理解。另外在网上有把服务器分为web服务器和应用服务器的说法，web服务器可以是nginx、Apache等，而gunicorn，uWSGI等成为应用服务器，是wsgi应用的容器。只是在实际中gunicorn，uWSGI以及那些框架自己测试用的wsgi服务器也都支持http协议，因此也可以直接用来使用，只是性能不够好。这种说法利于去区分一下服务器之间的区别和联系，但是在PEP333中，对wsgi server也直接称为了web server。</p>
+<h3 id="中间件"><a href="#中间件" class="headerlink" title="中间件"></a>中间件</h3><p>通过以上的解释可以知道wsgi连接了server和app，那么如果我们为了实现某个通用的功能从而同时实现server和app的接口，这样就可以插入server和app中间，让server以为自己连接的是app，而app认为自己连接的是server。<br><img src="/2018/01/12/WSGI(1)-WSGI理解/middle.png"><br>如图这里表现了app和server的关系，他们通过wsgi连接起来，而中间件则同时能够和app于server连接，而中间件之间也可以相互连接。这种方式可以让每个模块都专注于自己的开发，比如路由处理，session处理等，而app框架只需要关注其需要实现的东西，从而能够利用最好的工具实现整套服务。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/python/" rel="tag"># python</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/12/29/githubpage博客搭建(2)/" rel="next" title="githubpage博客搭建(2)">
+                <i class="fa fa-chevron-left"></i> githubpage博客搭建(2)
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/01/19/WSGI(2)-PEP333理解/" rel="prev" title="WSGI(2)-PEP333理解">
+                WSGI(2)-PEP333理解 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/mineavatar.jpg"
+               alt="sawyer" />
+          <p class="site-author-name" itemprop="name">sawyer</p>
+           
+              <p class="site-description motion-element" itemprop="description">如切如磋，如琢如磨</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">15</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#问题"><span class="nav-number">2.</span> <span class="nav-text">问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#WSGI理解"><span class="nav-number">3.</span> <span class="nav-text">WSGI理解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#中间件"><span class="nav-number">4.</span> <span class="nav-text">中间件</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">sawyer</span>
+</div>
+
+
+<!--
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+-->
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i> 访问人数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i> 访问总量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

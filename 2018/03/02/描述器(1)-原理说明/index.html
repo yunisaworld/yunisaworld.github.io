@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="python," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="简介python的描述器称为descriptor。其作用和它的名字一样，可以理解为用于描述一个属性，描述可以理解称为一些操作。而实际上描述器是一个属性对象，因此这里可以认为是被描述的属性。从实现上讲，是实现了描述器协议的对象，描述器协议即实现了__get__，__set__，__delete__函数，具体定义如下：123descr.__get__(self, obj, type=None) --&amp;">
+<meta name="keywords" content="python">
+<meta property="og:type" content="article">
+<meta property="og:title" content="描述器(1)-原理说明">
+<meta property="og:url" content="http://yoursite.com/2018/03/02/描述器(1)-原理说明/index.html">
+<meta property="og:site_name" content="Yun&#39;s Blog">
+<meta property="og:description" content="简介python的描述器称为descriptor。其作用和它的名字一样，可以理解为用于描述一个属性，描述可以理解称为一些操作。而实际上描述器是一个属性对象，因此这里可以认为是被描述的属性。从实现上讲，是实现了描述器协议的对象，描述器协议即实现了__get__，__set__，__delete__函数，具体定义如下：123descr.__get__(self, obj, type=None) --&amp;">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2018/03/02/描述器(1)-原理说明/实例属性查找.png">
+<meta property="og:image" content="http://yoursite.com/2018/03/02/描述器(1)-原理说明/类属性查找.png">
+<meta property="og:image" content="http://yoursite.com/2018/03/02/描述器(1)-原理说明/赋值属性查找.png">
+<meta property="og:updated_time" content="2018-08-04T03:50:45.585Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="描述器(1)-原理说明">
+<meta name="twitter:description" content="简介python的描述器称为descriptor。其作用和它的名字一样，可以理解为用于描述一个属性，描述可以理解称为一些操作。而实际上描述器是一个属性对象，因此这里可以认为是被描述的属性。从实现上讲，是实现了描述器协议的对象，描述器协议即实现了__get__，__set__，__delete__函数，具体定义如下：123descr.__get__(self, obj, type=None) --&amp;">
+<meta name="twitter:image" content="http://yoursite.com/2018/03/02/描述器(1)-原理说明/实例属性查找.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/03/02/描述器(1)-原理说明/"/>
+
+
+
+
+
+  <title>描述器(1)-原理说明 | Yun's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Yun's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/02/描述器(1)-原理说明/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sawyer">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/mineavatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Yun's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">描述器(1)-原理说明</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-02T17:26:22+08:00">
+                2018-03-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/python基础/" itemprop="url" rel="index">
+                    <span itemprop="name">python基础</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i> 浏览
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>次
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>python的描述器称为descriptor。其作用和它的名字一样，可以理解为用于描述一个属性，描述可以理解称为一些操作。而实际上描述器是一个属性对象，因此这里可以认为是被描述的属性。从实现上讲，是实现了描述器协议的对象，描述器协议即实现了__get__，__set__，__delete__函数，具体定义如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">descr.__get__(self, obj, type=None) --&gt; value</span><br><span class="line">descr.__set__(self, obj, value) --&gt; None</span><br><span class="line">descr.__delete__(self, obj) --&gt; None</span><br></pre></td></tr></table></figure></p>
+<p>这里实现了__get__和__set__的描述器是称为资料描述器，仅定义了__get__的是非资料描述器。</p>
+<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><p>如果要对某一类属性进行处理，比如学生成绩单，每一科的成绩都不能为负，设定其大于等于0。<br>正常情况下我们可能需要对每一属性设置set，这时候可以使用描述器来简化。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">score_desc</span><span class="params">(object)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__set__</span><span class="params">(self, obj, score)</span>:</span></span><br><span class="line">        <span class="keyword">print</span> <span class="string">'call __set__'</span></span><br><span class="line">        <span class="keyword">if</span> score &gt;= <span class="number">0</span>:</span><br><span class="line">            self.score = score</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">raise</span> Exception(<span class="string">"score&lt;0!"</span>)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__get__</span><span class="params">(self, obj, obj_type=None)</span>:</span></span><br><span class="line">        <span class="keyword">print</span> <span class="string">'call __get__'</span></span><br><span class="line">        <span class="keyword">return</span> self.score</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">stu_scores</span><span class="params">(object)</span>:</span></span><br><span class="line">    math_score = score_desc()</span><br><span class="line">    chinese_score = score_desc()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    sc = stu_scores()</span><br><span class="line">    sc.math_score = <span class="number">10</span></span><br><span class="line">    <span class="keyword">print</span> sc.math_score</span><br></pre></td></tr></table></figure></p>
+<p>输出：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">call __set__</span><br><span class="line">call __get__</span><br><span class="line"><span class="number">10</span></span><br></pre></td></tr></table></figure></p>
+<p>这里我们对每一个属性都可以做这种设置，所以描述器也可以理解称为带功能的属性。</p>
+<h3 id="属性访问"><a href="#属性访问" class="headerlink" title="属性访问"></a>属性访问</h3><p>描述器是通过__getattribute__调用的，分为object.__getattribute__和type.__getattribute__两种，分别对实例对属性的查找和类对属性的查找。</p>
+<h4 id="实例对属性的查找"><a href="#实例对属性的查找" class="headerlink" title="实例对属性的查找"></a>实例对属性的查找</h4><p>对于obj.m这种形式的调用，该函数是用C实现，在Object/object.c中的PyObject_GenericGetAttr函数实现，通过阅读源码可以知道查找过程如下：ect_GenericGetAttr函数实现，通过阅读源码可以知道查找过程如下：<br>1、首先是获取通过type(obj).__mro__给出的类元组，其包括当前obj的类和其继承的类，依次搜索元组中的__dict__中名称为m的属性，找到了就赋值给descr的变量。<br>2、然后判断descr是否是一个资料描述器，如果是则执行descr.__get__(obj,type(obj))，返回结果。<br>3、如果不满足第2点，然后移动obj指针指向obj实例的__dict__，如果找到m，则返回结果。这里需要注意，如果m是一个描述器，也是直接返回了这个描述器，而不是调用__get__函数。<br>比如上面的stu_socres类改写成下面这样：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">stu_scores</span><span class="params">(object)</span>:</span></span><br><span class="line">      <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">          self.math_score = score_desc()</span><br><span class="line">          self.chinese_score = score_desc()</span><br></pre></td></tr></table></figure></p>
+<p>输出就是:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">10</span><br></pre></td></tr></table></figure></p>
+<p>所以描述器都是做为类属性这一级别。<br>4、如果不满足第3点，则继续判断descr是否是非资料描述器，如果是则执行其__get__函数，返回结果。<br>5、如果不满足第4点，则判断第1点中搜到的descr是否为空，不为空则返回descr<br>6、如果前面的都不满足，则抛出异常。<br><img src="/2018/03/02/描述器(1)-原理说明/实例属性查找.png"></p>
+<h4 id="类对属性的查找"><a href="#类对属性的查找" class="headerlink" title="类对属性的查找"></a>类对属性的查找</h4><p>上面是对于实例访问属性的情况，如果对象是一个类的时候即cls.m的时候，通过Objects/typeobject.c中的type_getattro__函数实现。过程和实例的实现有点不同：<br>1、首先也是通过type(cls).__mro__给出元类元组，一般是(&lt;type ‘type’&gt;, &lt;type ‘object’&gt;)这样的形式。然后也是依次在元组中的类的__dict__中搜索m，并赋值给meta_attribute。<br>2、然后判断meta_attribute是否是资料描述器，如果是则返回meta_attribute.__get__(None,cls)执行结果。<br>3、如果不满足第2点，然后通过cls.__mro__给出类元组，然后依次查找。将查找结果赋值给attribute.<br>4、然后判断attribute是否是描述器（实现了__get__），如果是则返回attribute.__get__(None,cls)执行结果。<br>5、如果不满足第4点，则继续判断meta_attribute是否是非资料描述器（实现了__get__），如果有执行，返回结果。<br>6、如果不满足第5点，判断meta_attribute是否为空，即普通的属性，如果不是则返回该值。<br>7、如果上面不满足，则抛出异常。<br><img src="/2018/03/02/描述器(1)-原理说明/类属性查找.png"></p>
+<h4 id="访问优先级"><a href="#访问优先级" class="headerlink" title="访问优先级"></a>访问优先级</h4><p>从上面可以看出，一般实例obj的属性x（x不是描述器的情况）获取顺序是：<br>1、实例的dict，即obj.__dict__[‘x’]；<br>2、类的dict，即type(obj).__dict__[‘x’]；<br>3、父类的dict，不包括元类metaclass。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Test</span><span class="params">(object)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">        self.test = <span class="string">'instance test'</span></span><br><span class="line">        self.t = <span class="string">'intance t'</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">test</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">print</span> <span class="string">'class function test'</span></span><br><span class="line"></span><br><span class="line">    t = <span class="string">'class t'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    t = Test()</span><br><span class="line">    <span class="keyword">print</span> t.t</span><br><span class="line">    <span class="keyword">print</span> t.test</span><br></pre></td></tr></table></figure></p>
+<p>输出：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">intance t</span><br><span class="line">instance test</span><br></pre></td></tr></table></figure></p>
+<p>如果去掉<strong>init</strong>中的内容，输出为：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">class t</span><br><span class="line">&lt;bound method Test.test of &lt;__main__.Test object at 0x7f06476a4210&gt;&gt;</span><br></pre></td></tr></table></figure></p>
+<p>如果上面的查找过程中找到某个x是一个描述器，则用x定义的描述器方法来替代默认的操作访问。优先级是资料描述器&gt;实例字典&gt;非资料描述器。比如实例的方法和属性同名，会优先使用属性，因为实例函数只是一个非资料描述器。<br>通过一下代码输出test函数信息:<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">print</span> type(t.test)</span><br><span class="line"><span class="keyword">print</span> type(t.test).__dict__[<span class="string">'__get__'</span>]</span><br></pre></td></tr></table></figure></p>
+<p>输出：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;type &apos;instancemethod&apos;&gt;</span><br><span class="line">&lt;slot wrapper &apos;__get__&apos; of &apos;instancemethod&apos; objects&gt;</span><br></pre></td></tr></table></figure></p>
+<h3 id="属性赋值查找"><a href="#属性赋值查找" class="headerlink" title="属性赋值查找"></a>属性赋值查找</h3><p>赋值的时候过程是相同的，对应的是Objects/typeobject.c的type_setattro方法，其中调用了Objects/object.c的PyObject_GenericSetAtt方法。其查找顺序是：<br>1、type(obj)或者type(cls)的mro类元组中类的__dict__中查找，找到属性且为数据描述器，调用其__set__函数，返回。<br>2、如果不满足上一步，则继续查找obj或者cls的的__dict__查找，如果找到则赋值返回。由此可知，对于类继承的属性这里是没有办法直接赋值修改的。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span><span class="params">(object)</span>:</span></span><br><span class="line">    a = <span class="number">10</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">B</span><span class="params">(A)</span>:</span></span><br><span class="line">    b = <span class="number">10</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> B.a</span><br><span class="line"><span class="keyword">print</span> B.__dict__</span><br><span class="line">B.a=<span class="number">20</span></span><br><span class="line"><span class="keyword">print</span> B.__dict__</span><br><span class="line"><span class="keyword">print</span> B.a</span><br></pre></td></tr></table></figure>
+<p>输出：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">10</span><br><span class="line">&#123;&apos;__module__&apos;: &apos;__main__&apos;, &apos;b&apos;: 10, &apos;__doc__&apos;: None&#125;</span><br><span class="line">&#123;&apos;a&apos;: 20, &apos;__module__&apos;: &apos;__main__&apos;, &apos;b&apos;: 10, &apos;__doc__&apos;: None&#125;</span><br><span class="line">20</span><br></pre></td></tr></table></figure></p>
+<p>这里可以看到B对a赋值会直接在字典中加了新的a属性<br>3、如果不满足上一步，则继续判断第一步是否找到属性切实现了__set__方法，如果有则执行后返回。<br>4、以上都不满足，抛出异常。<br><img src="/2018/03/02/描述器(1)-原理说明/赋值属性查找.png"></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/python/" rel="tag"># python</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/02/23/WSGI(5)-中间件实现示例/" rel="next" title="WSGI(5)-中间件实现示例">
+                <i class="fa fa-chevron-left"></i> WSGI(5)-中间件实现示例
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/03/10/描述器(2)-应用/" rel="prev" title="描述器(2)-应用">
+                描述器(2)-应用 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/mineavatar.jpg"
+               alt="sawyer" />
+          <p class="site-author-name" itemprop="name">sawyer</p>
+           
+              <p class="site-description motion-element" itemprop="description">如切如磋，如琢如磨</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">15</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#示例"><span class="nav-number">2.</span> <span class="nav-text">示例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#属性访问"><span class="nav-number">3.</span> <span class="nav-text">属性访问</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#实例对属性的查找"><span class="nav-number">3.1.</span> <span class="nav-text">实例对属性的查找</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#类对属性的查找"><span class="nav-number">3.2.</span> <span class="nav-text">类对属性的查找</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#访问优先级"><span class="nav-number">3.3.</span> <span class="nav-text">访问优先级</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#属性赋值查找"><span class="nav-number">4.</span> <span class="nav-text">属性赋值查找</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">sawyer</span>
+</div>
+
+
+<!--
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+-->
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i> 访问人数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i> 访问总量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="hexo," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="一直想搭建github page将自己的一些笔记整理发布出来，这周末终于能抽出时间，看了若干他山之石，开始了搭建。这里我写下我自己的搭建过程，没有什么技术含量，仅记录我的理解，尽可能用简单的步骤先能搭建成功，再进行东西添加，其中趟的坑也一一在这里说明。 首先这里需要说明的是github page搭建主要需要具备两个方面的条件，github上的repo，本地的搭建、发布的工具。所以这里从两个方面说明">
+<meta name="keywords" content="hexo">
+<meta property="og:type" content="article">
+<meta property="og:title" content="githubpage博客搭建(1)">
+<meta property="og:url" content="http://yoursite.com/2017/12/24/githubpage博客搭建(1)/index.html">
+<meta property="og:site_name" content="Yun&#39;s Blog">
+<meta property="og:description" content="一直想搭建github page将自己的一些笔记整理发布出来，这周末终于能抽出时间，看了若干他山之石，开始了搭建。这里我写下我自己的搭建过程，没有什么技术含量，仅记录我的理解，尽可能用简单的步骤先能搭建成功，再进行东西添加，其中趟的坑也一一在这里说明。 首先这里需要说明的是github page搭建主要需要具备两个方面的条件，github上的repo，本地的搭建、发布的工具。所以这里从两个方面说明">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2017/12/24/githubpage博客搭建(1)/repo建立.png">
+<meta property="og:image" content="http://yoursite.com/2017/12/24/githubpage博客搭建(1)/hexoserver.png">
+<meta property="og:image" content="http://yoursite.com/2017/12/24/githubpage博客搭建(1)/博客编写.png">
+<meta property="og:image" content="http://yoursite.com/2017/12/24/githubpage博客搭建(1)/ssh生成.png">
+<meta property="og:image" content="http://yoursite.com/2017/12/24/githubpage博客搭建(1)/ssh添加.png">
+<meta property="og:image" content="http://yoursite.com/2017/12/24/githubpage博客搭建(1)/ssh添加3.png">
+<meta property="og:image" content="http://yoursite.com/2017/12/24/githubpage博客搭建(1)/ssh添加成功.png">
+<meta property="og:image" content="http://yoursite.com/2017/12/24/githubpage博客搭建(1)/修改deploy.png">
+<meta property="og:image" content="http://yoursite.com/2017/12/24/githubpage博客搭建(1)/更新成功.png">
+<meta property="og:image" content="http://yoursite.com/2017/12/24/githubpage博客搭建(1)/修改风格发布.png">
+<meta property="og:updated_time" content="2018-08-04T03:50:45.573Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="githubpage博客搭建(1)">
+<meta name="twitter:description" content="一直想搭建github page将自己的一些笔记整理发布出来，这周末终于能抽出时间，看了若干他山之石，开始了搭建。这里我写下我自己的搭建过程，没有什么技术含量，仅记录我的理解，尽可能用简单的步骤先能搭建成功，再进行东西添加，其中趟的坑也一一在这里说明。 首先这里需要说明的是github page搭建主要需要具备两个方面的条件，github上的repo，本地的搭建、发布的工具。所以这里从两个方面说明">
+<meta name="twitter:image" content="http://yoursite.com/2017/12/24/githubpage博客搭建(1)/repo建立.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/12/24/githubpage博客搭建(1)/"/>
+
+
+
+
+
+  <title>githubpage博客搭建(1) | Yun's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Yun's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/12/24/githubpage博客搭建(1)/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sawyer">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/mineavatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Yun's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">githubpage博客搭建(1)</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-12-24T18:17:06+08:00">
+                2017-12-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/github-page/" itemprop="url" rel="index">
+                    <span itemprop="name">github page</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i> 浏览
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>次
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>一直想搭建github page将自己的一些笔记整理发布出来，这周末终于能抽出时间，看了若干他山之石，开始了搭建。这里我写下我自己的搭建过程，没有什么技术含量，仅记录我的理解，尽可能用简单的步骤先能搭建成功，再进行东西添加，其中趟的坑也一一在这里说明。</p>
+<p>首先这里需要说明的是github page搭建主要需要具备两个方面的条件，github上的repo，本地的搭建、发布的工具。所以这里从两个方面说明。</p>
+<h3 id="github上的repo建立。"><a href="#github上的repo建立。" class="headerlink" title="github上的repo建立。"></a>github上的repo建立。</h3><p>创建这里就不细说，需要注意的是需要创建一个和用户名相同的仓库，即username.github.io，这里只需要注意的是github page只允许有一个个人主页，必须按以上格式命名，但是可以有多个项目主页，因此也是还可以申请其它的repo来作为github page的。<br><img src="/2017/12/24/githubpage博客搭建(1)/repo建立.png"></p>
+<h3 id="本地环境。"><a href="#本地环境。" class="headerlink" title="本地环境。"></a>本地环境。</h3><p>可以选用不同的工具，这里使用hexo。网上教程较多的工具有hexo、jekyll。jekyll是基于Ruby，hexo基于node.js，相对来说hexo更方便好用。<br>环境配置：<br>(1)安装nodejs<br>windows下面直接下载安装包<br>linux下面centos中可以使用<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ yum install -y nodejs</span><br></pre></td></tr></table></figure></p>
+<p>安装完成以后可以使用node -v查看<br>(2)安装hexo<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ npm install hexo-cli -g</span><br></pre></td></tr></table></figure></p>
+<p>以上完成本地环境的安装。</p>
+<h3 id="搭建博客"><a href="#搭建博客" class="headerlink" title="搭建博客"></a>搭建博客</h3><p>(1)初始化<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ hexo init yunisaworld.github.io  //建立项目</span><br><span class="line">$ <span class="built_in">cd</span> yunisaworld.github.io  //进入项目目录</span><br><span class="line">$ npm install  //安装npm</span><br></pre></td></tr></table></figure></p>
+<p>(2)生成页面<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ hexo clean</span><br><span class="line">$ hexo g/hexo generate</span><br></pre></td></tr></table></figure></p>
+<p>(3)运行<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo s/hexo server</span><br></pre></td></tr></table></figure></p>
+<p>这时候打开localhost:4000即可看到<br><img src="/2017/12/24/githubpage博客搭建(1)/hexoserver.png"></p>
+<h3 id="博客编写"><a href="#博客编写" class="headerlink" title="博客编写"></a>博客编写</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="built_in">test</span>  //写一篇文章</span><br></pre></td></tr></table></figure>
+<p>此时在source/_posts目录下面生成test.md文件，可以使用markdown在里面添加内容，然后重新<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ hexo clean</span><br><span class="line">$ hexo g</span><br><span class="line">$ hexo s</span><br></pre></td></tr></table></figure></p>
+<img src="/2017/12/24/githubpage博客搭建(1)/博客编写.png">
+<h3 id="配置github的验证"><a href="#配置github的验证" class="headerlink" title="配置github的验证"></a>配置github的验证</h3><p>有了仓库和本地的博客，则需要将本地博客部署到github远程仓库。这种部署需要有权限验证，不能什么人都可以上传，github有两种上传方式，一种是基于https，一种是基于ssh的，我先通过https连接，但是没有配置成功，上传显示失败，所以最后选择了ssh的验证方式，网上看到若干https上不去的，但是都没有说明原因。<br>(1)配置ssh key<br>在windows下面使用git bash<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cd</span> ~/.ssh  //查看本机是否存在ssh密钥</span><br></pre></td></tr></table></figure></p>
+<p>如果显示No such file or directory说明没有配置<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ssh-keygen -t rsa -C <span class="string">"邮箱"</span></span><br></pre></td></tr></table></figure></p>
+<p>enter就可以了不用去配置其它东西。<br><img src="/2017/12/24/githubpage博客搭建(1)/ssh生成.png"><br>然后将.ssh/id_ras.pub中的文本复制到github中。<br>选择settings<br><img src="/2017/12/24/githubpage博客搭建(1)/ssh添加.png"><br>选择SSH and GPG keys，选择New SSH key<br><br>然后title随意起，下面key将内容复制进去即可，一般生成的时候会给邮箱发送邮件。<br><img src="/2017/12/24/githubpage博客搭建(1)/ssh添加3.png"><br>这时候可以在git bash中验证是否成功。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ssh -T git@github.com</span><br></pre></td></tr></table></figure></p>
+<p>可能出现如下问题<br><br>由于公司需要代理才能访问外网，所以这里需要在.ssh中配置一下代理，建立config文件，在文件中加入代理<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Host *</span><br><span class="line">  ProxyCommand  Connect -H [proxy] %h %p</span><br></pre></td></tr></table></figure></p>
+<p>此时在运行以上命令<br><img src="/2017/12/24/githubpage博客搭建(1)/ssh添加成功.png"><br>则表示已经通过。</p>
+<h3 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h3><p>(1)安装插件<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ npm install hexo-deployer-git --save</span><br></pre></td></tr></table></figure></p>
+<p>windows下面可能会显示安装错误，提示需要使用管理员来运行cmd，只需要在运行cmd的时候右键通过管理运行就可以了。<br>(2)修改配置文件<br>在yunisaworld.github.io目录中有一个配置文件_config.yml，修改发布配置deploy<br><img src="/2017/12/24/githubpage博客搭建(1)/修改deploy.png"><br>(3)发布<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo d/hexo deploy</span><br></pre></td></tr></table></figure></p>
+<p>最后显示如下，更新到github<br><img src="/2017/12/24/githubpage博客搭建(1)/更新成功.png"><br>通过<a href="https://yunisaworld.github.io/访问" target="_blank" rel="noopener">https://yunisaworld.github.io/访问</a></p>
+<h3 id="修改主题"><a href="#修改主题" class="headerlink" title="修改主题"></a>修改主题</h3><p>这里我使用了hexo-theme-next主题<br>在本地博客目录下clone该项目<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ git <span class="built_in">clone</span> --branch v5.1.2 https://github.com/iissnan/hexo-theme-next themes/next</span><br></pre></td></tr></table></figure></p>
+<p>然后修改_config.yml文件的theme配置项<br>theme: next<br>重新启动<br><img src="/2017/12/24/githubpage博客搭建(1)/修改风格发布.png"><br>至此我们已经可以建立基本的静态博客页面了，接下来将详解如何去配置评论，显示，文章的设置等。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/hexo/" rel="tag"># hexo</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/12/29/githubpage博客搭建(2)/" rel="prev" title="githubpage博客搭建(2)">
+                githubpage博客搭建(2) <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/mineavatar.jpg"
+               alt="sawyer" />
+          <p class="site-author-name" itemprop="name">sawyer</p>
+           
+              <p class="site-description motion-element" itemprop="description">如切如磋，如琢如磨</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">15</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#github上的repo建立。"><span class="nav-number">1.</span> <span class="nav-text">github上的repo建立。</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#本地环境。"><span class="nav-number">2.</span> <span class="nav-text">本地环境。</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#搭建博客"><span class="nav-number">3.</span> <span class="nav-text">搭建博客</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#博客编写"><span class="nav-number">4.</span> <span class="nav-text">博客编写</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#配置github的验证"><span class="nav-number">5.</span> <span class="nav-text">配置github的验证</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#部署"><span class="nav-number">6.</span> <span class="nav-text">部署</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#修改主题"><span class="nav-number">7.</span> <span class="nav-text">修改主题</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">sawyer</span>
+</div>
+
+
+<!--
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+-->
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i> 访问人数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i> 访问总量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

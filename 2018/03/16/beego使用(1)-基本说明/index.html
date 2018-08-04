@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="go," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="工作接触的第一个项目是用golang语言基于beego框架写的，算是一个比较容易上手的框架，比较适合一些简单的应用。这里记录一下自己的使用。其主要特点如下：1、beego是一个典型的mvc框架；2、实现了一些常用的模块，比如缓存，session，日志，orm等；3、可以自动生成API文档；4、其支持Restful格式接口。 安装1、首先beego安装需要有git，所以需要先安装git，这里使用yu">
+<meta name="keywords" content="go">
+<meta property="og:type" content="article">
+<meta property="og:title" content="beego使用(1)-基本说明">
+<meta property="og:url" content="http://yoursite.com/2018/03/16/beego使用(1)-基本说明/index.html">
+<meta property="og:site_name" content="Yun&#39;s Blog">
+<meta property="og:description" content="工作接触的第一个项目是用golang语言基于beego框架写的，算是一个比较容易上手的框架，比较适合一些简单的应用。这里记录一下自己的使用。其主要特点如下：1、beego是一个典型的mvc框架；2、实现了一些常用的模块，比如缓存，session，日志，orm等；3、可以自动生成API文档；4、其支持Restful格式接口。 安装1、首先beego安装需要有git，所以需要先安装git，这里使用yu">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2018/03/16/beego使用(1)-基本说明/go包调用.png">
+<meta property="og:image" content="http://yoursite.com/2018/03/16/beego使用(1)-基本说明/流程.png">
+<meta property="og:updated_time" content="2018-08-04T03:50:45.569Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="beego使用(1)-基本说明">
+<meta name="twitter:description" content="工作接触的第一个项目是用golang语言基于beego框架写的，算是一个比较容易上手的框架，比较适合一些简单的应用。这里记录一下自己的使用。其主要特点如下：1、beego是一个典型的mvc框架；2、实现了一些常用的模块，比如缓存，session，日志，orm等；3、可以自动生成API文档；4、其支持Restful格式接口。 安装1、首先beego安装需要有git，所以需要先安装git，这里使用yu">
+<meta name="twitter:image" content="http://yoursite.com/2018/03/16/beego使用(1)-基本说明/go包调用.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/03/16/beego使用(1)-基本说明/"/>
+
+
+
+
+
+  <title>beego使用(1)-基本说明 | Yun's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Yun's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/16/beego使用(1)-基本说明/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sawyer">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/mineavatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Yun's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">beego使用(1)-基本说明</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-16T20:56:26+08:00">
+                2018-03-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/beego使用/" itemprop="url" rel="index">
+                    <span itemprop="name">beego使用</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i> 浏览
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>次
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>工作接触的第一个项目是用golang语言基于beego框架写的，算是一个比较容易上手的框架，比较适合一些简单的应用。这里记录一下自己的使用。其主要特点如下：<br>1、beego是一个典型的mvc框架；<br>2、实现了一些常用的模块，比如缓存，session，日志，orm等；<br>3、可以自动生成API文档；<br>4、其支持Restful格式接口。</p>
+<h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><p>1、首先beego安装需要有git，所以需要先安装git，这里使用yum安装。需要注意的是yum在内网使用需要配置代理。方式如下：vim /etc/yum.conf，然后在末尾加上proxy=代理地址。<br>2、接下来安装，这里使用go的get指令安装beego<br>go get github.com/astaxie/beego<br>3、然后需要安装bee<br>go get githum.com/beego/bee</p>
+<h3 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h3><p>1、创建项目<br>bee new project<br>该指令只能在$GOPATH/src下面使用<br>2、运行<br>bee run<br>在项目目录下，即main.go所在目录运行</p>
+<h3 id="目录结构"><a href="#目录结构" class="headerlink" title="目录结构"></a>目录结构</h3><p>下面给出一个目录结构：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">|-- app_err</span><br><span class="line">|   |-- err.go</span><br><span class="line">|-- conf</span><br><span class="line">|   |-- app-dev.conf</span><br><span class="line">|   |-- app-pro.conf</span><br><span class="line">|   |-- app.conf(软连接)</span><br><span class="line">|-- controllers</span><br><span class="line">|   |-- base.go</span><br><span class="line">|   |-- default.go</span><br><span class="line">|-- models</span><br><span class="line">|   |-- base.go</span><br><span class="line">|-- routers</span><br><span class="line">|   |-- router.go</span><br><span class="line">|   |-- commentsRouter_controllers.go</span><br><span class="line">|-- static</span><br><span class="line">|   |-- css/</span><br><span class="line">|   |-- fonts/</span><br><span class="line">|   |-- img/</span><br><span class="line">|   |-- js/</span><br><span class="line">|-- swagger/</span><br><span class="line">|-- tests</span><br><span class="line">|   |-- base.go</span><br><span class="line">|-- views</span><br><span class="line">|   |-- index.html</span><br><span class="line">|-- main.go</span><br></pre></td></tr></table></figure></p>
+<p>这个结构中大部分是通过bee new project的命令生成的，下面做详细说明。<br>1、app_err目录。自己创建，因为在我们开发过程中需要定义一些错误，所以单独创建一个目录去定义。<br>2、conf目录。默认生成。beego会使用里面的app.conf文件，默认这不是一个软连接文件，但是在实际开发中，我们开发、测试、线上可能需要的环境（如数据库等）不同，所以可以使用软连接指向不同的conf文件，从而能够灵活适应不同环境的部署。<br>3、controllers目录。默认目录，控制层，用于获取api参数，并调用model层。<br>4、models目录。默认目录，主要是用于编写struct，一般我们会将一些公共的东西写在base.go中，这个文件是自己定义的。<br>5、routers目录。默认目录。其中router.go需要自己定义路由和控制器的关系，commentsRouter_controllers.go文件是通过controller中的注解路由生成的。<br>6、static目录。这个目录是默认的，主要用于存放view层，即前端的一些文件。<br>7、swagger目录。通过生成api文档生成，用于存放api文档显示的内容的文件。<br>8、tests目录。默认生成。用于编写测试文件。<br>9、views目录。默认生成。存放首页文件。<br>10、main.go。程序入口，程序运行也是通过启动该文件。</p>
+<h3 id="简单例子"><a href="#简单例子" class="headerlink" title="简单例子"></a>简单例子</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main <span class="keyword">import</span> (</span><br><span class="line">	<span class="string">"github.com/astaxie/beego"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> HelloController <span class="keyword">struct</span> &#123;</span><br><span class="line">	beego.Controller </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(this *HelloController)</span> <span class="title">Get</span><span class="params">()</span></span> &#123;</span><br><span class="line">	this.Ctx.WriteString(<span class="string">"hello world"</span>)</span><br><span class="line">&#125; </span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	beego.Router(<span class="string">"/"</span>, &amp;HelloController&#123;&#125;)</span><br><span class="line">	beego.Run()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个例子是一个单文件的例子，只需要使用go build编译后运行即可。<br>首先看看路由，这里通过beego.Router函数将controller和route联系起来，这里绑定的语句可以放在router.go文件中。beego官方文档上说明了go的初始化方式，顺次查找包，然后调用init函数。所以这里只需要导入router.go就可以了，go中导入一个包时如果只使用init函数则需要在包前加下划线”_”。<br><img src="/2018/03/16/beego使用(1)-基本说明/go包调用.png"><br>下面看看controller，HelloController通过继承了beego.Controller，我们可以通过某一个BaseController继承Controller，然后其它控制器再继承这个，在BaseController中可以重写一些函数。这里实现了Get函数，这是Restful格式的函数，也可以使用Post，Put，Delete等。main函数是程序的入口，这点和C/C++类似。</p>
+<h3 id="流程"><a href="#流程" class="headerlink" title="流程"></a>流程</h3><p>下面是官网给出的流程，可以看到这里的主要步骤是通过路由解析，然后执行初始化Init，然后调用控制器的Prepare函数，然后调用Controller逻辑函数，然后执行Finish函数。其中可能在返回结果前执行Render函数。<br><img src="/2018/03/16/beego使用(1)-基本说明/流程.png"></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/go/" rel="tag"># go</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/10/描述器(2)-应用/" rel="next" title="描述器(2)-应用">
+                <i class="fa fa-chevron-left"></i> 描述器(2)-应用
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/03/25/beego使用(2)-控制器/" rel="prev" title="beego使用(2)-控制器">
+                beego使用(2)-控制器 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/mineavatar.jpg"
+               alt="sawyer" />
+          <p class="site-author-name" itemprop="name">sawyer</p>
+           
+              <p class="site-description motion-element" itemprop="description">如切如磋，如琢如磨</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">15</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#安装"><span class="nav-number">1.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用"><span class="nav-number">2.</span> <span class="nav-text">使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#目录结构"><span class="nav-number">3.</span> <span class="nav-text">目录结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#简单例子"><span class="nav-number">4.</span> <span class="nav-text">简单例子</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#流程"><span class="nav-number">5.</span> <span class="nav-text">流程</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">sawyer</span>
+</div>
+
+
+<!--
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+-->
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i> 访问人数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i> 访问总量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

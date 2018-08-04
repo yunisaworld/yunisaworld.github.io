@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="hexo," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="上一篇说明了如何搭建博客，这里说明一些需要修饰的东西。 基本信息设置语言设置在博客目录的_config.yml中配置language选项，默认是英文1language: zh-Hans  //设置为中文  作者在博客目录的_config.yml中配置author选项 标题在博客目录的_config.yml中配置title选项 侧边头像这里需要在主题的_config.yml中设置avatar，这里可">
+<meta name="keywords" content="hexo">
+<meta property="og:type" content="article">
+<meta property="og:title" content="githubpage博客搭建(2)">
+<meta property="og:url" content="http://yoursite.com/2017/12/29/githubpage博客搭建(2)/index.html">
+<meta property="og:site_name" content="Yun&#39;s Blog">
+<meta property="og:description" content="上一篇说明了如何搭建博客，这里说明一些需要修饰的东西。 基本信息设置语言设置在博客目录的_config.yml中配置language选项，默认是英文1language: zh-Hans  //设置为中文  作者在博客目录的_config.yml中配置author选项 标题在博客目录的_config.yml中配置title选项 侧边头像这里需要在主题的_config.yml中设置avatar，这里可">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2017/12/29/githubpage博客搭建(2)/language.png">
+<meta property="og:image" content="http://yoursite.com/2017/12/29/githubpage博客搭建(2)/author.png">
+<meta property="og:image" content="http://yoursite.com/2017/12/29/githubpage博客搭建(2)/title.png">
+<meta property="og:image" content="http://yoursite.com/2017/12/29/githubpage博客搭建(2)/avatarset.png">
+<meta property="og:image" content="http://yoursite.com/2017/12/29/githubpage博客搭建(2)/avatar.png">
+<meta property="og:image" content="http://yoursite.com/2017/12/29/githubpage博客搭建(2)/category.png">
+<meta property="og:image" content="http://yoursite.com/2017/12/29/githubpage博客搭建(2)/visit.png">
+<meta property="og:image" content="http://yoursite.com/2017/12/29/githubpage博客搭建(2)/bottom.png">
+<meta property="og:image" content="http://yoursite.com/2017/12/29/githubpage博客搭建(2)/image.png">
+<meta property="og:updated_time" content="2018-08-04T03:50:45.582Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="githubpage博客搭建(2)">
+<meta name="twitter:description" content="上一篇说明了如何搭建博客，这里说明一些需要修饰的东西。 基本信息设置语言设置在博客目录的_config.yml中配置language选项，默认是英文1language: zh-Hans  //设置为中文  作者在博客目录的_config.yml中配置author选项 标题在博客目录的_config.yml中配置title选项 侧边头像这里需要在主题的_config.yml中设置avatar，这里可">
+<meta name="twitter:image" content="http://yoursite.com/2017/12/29/githubpage博客搭建(2)/language.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/12/29/githubpage博客搭建(2)/"/>
+
+
+
+
+
+  <title>githubpage博客搭建(2) | Yun's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Yun's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/12/29/githubpage博客搭建(2)/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sawyer">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/mineavatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Yun's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">githubpage博客搭建(2)</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-12-29T15:54:39+08:00">
+                2017-12-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/github-page/" itemprop="url" rel="index">
+                    <span itemprop="name">github page</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i> 浏览
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>次
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>上一篇说明了如何搭建博客，这里说明一些需要修饰的东西。</p>
+<h3 id="基本信息设置"><a href="#基本信息设置" class="headerlink" title="基本信息设置"></a>基本信息设置</h3><h4 id="语言设置"><a href="#语言设置" class="headerlink" title="语言设置"></a>语言设置</h4><p>在博客目录的_config.yml中配置language选项，默认是英文<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">language: zh-Hans  //设置为中文</span><br></pre></td></tr></table></figure></p>
+<img src="/2017/12/29/githubpage博客搭建(2)/language.png">
+<h4 id="作者"><a href="#作者" class="headerlink" title="作者"></a>作者</h4><p>在博客目录的_config.yml中配置author选项<br><img src="/2017/12/29/githubpage博客搭建(2)/author.png"></p>
+<h4 id="标题"><a href="#标题" class="headerlink" title="标题"></a>标题</h4><p>在博客目录的_config.yml中配置title选项<br><img src="/2017/12/29/githubpage博客搭建(2)/title.png"></p>
+<h4 id="侧边头像"><a href="#侧边头像" class="headerlink" title="侧边头像"></a>侧边头像</h4><p>这里需要在主题的_config.yml中设置avatar，这里可以通过两种方式，一种是在主题目录下，一种是在博客目录下，这里选择在博客目录下面设置，因为这里有两种好处，一种是其它主题也可以用这个图像，另外一个是这样可以将图片和md文件一起管理，可以放到git上，避免在theme中不方便管理。<br><img src="/2017/12/29/githubpage博客搭建(2)/avatarset.png"><br><img src="/2017/12/29/githubpage博客搭建(2)/avatar.png"></p>
+<h3 id="功能设置"><a href="#功能设置" class="headerlink" title="功能设置"></a>功能设置</h3><h4 id="分类"><a href="#分类" class="headerlink" title="分类"></a>分类</h4><p>博客_config.yml中配置<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">category_dir: categories</span><br></pre></td></tr></table></figure></p>
+<p>主题_config.yml中配置<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">menu:</span><br><span class="line">  categories: /categories/</span><br></pre></td></tr></table></figure></p>
+<p>新建<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo new page categories</span><br></pre></td></tr></table></figure></p>
+<img src="/2017/12/29/githubpage博客搭建(2)/category.png">
+<p>修改index.md<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">layout: hegithub</span><br><span class="line">title: test</span><br><span class="line">date: 2017-12-24 18:17:06</span><br><span class="line">categories: </span><br><span class="line">- test</span><br></pre></td></tr></table></figure></p>
+<h4 id="标签"><a href="#标签" class="headerlink" title="标签"></a>标签</h4><p>标签和分类类似，只需要把相应的地方写成tags。</p>
+<h4 id="添加访问次数"><a href="#添加访问次数" class="headerlink" title="添加访问次数"></a>添加访问次数</h4><p>在主题配置文件theme/next/_config.yml中<br><img src="/2017/12/29/githubpage博客搭建(2)/visit.png"></p>
+<h3 id="页面显示"><a href="#页面显示" class="headerlink" title="页面显示"></a>页面显示</h3><h4 id="页面底部"><a href="#页面底部" class="headerlink" title="页面底部"></a>页面底部</h4><p>打开blog/themes/next/layout/_partials/footer.swig，使用<!-- -->注释，或者修改一下内容。<br><img src="/2017/12/29/githubpage博客搭建(2)/bottom.png"></p>
+<h4 id="设置预览"><a href="#设置预览" class="headerlink" title="设置预览"></a>设置预览</h4><p>next主题默认是全部显示的，因此需要自己去设置，在主题的_config.yml文件中找到auto_excerpt项，然后将enable设置为true。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">auto_excerpt:</span><br><span class="line">  enable: true</span><br><span class="line">  length: 150</span><br></pre></td></tr></table></figure></p>
+<h4 id="图片边框"><a href="#图片边框" class="headerlink" title="图片边框"></a>图片边框</h4><p>图片默认有边框，可以通过以下地方修改：<br>themes\next\source\css_common\components\post\post-expand.styl<br><img src="/2017/12/29/githubpage博客搭建(2)/image.png"><br>只能通过这里修改，如果直接用属性修饰img无效。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/hexo/" rel="tag"># hexo</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/12/24/githubpage博客搭建(1)/" rel="next" title="githubpage博客搭建(1)">
+                <i class="fa fa-chevron-left"></i> githubpage博客搭建(1)
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/01/12/WSGI(1)-WSGI理解/" rel="prev" title="WSGI(1):WSGI理解">
+                WSGI(1):WSGI理解 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/mineavatar.jpg"
+               alt="sawyer" />
+          <p class="site-author-name" itemprop="name">sawyer</p>
+           
+              <p class="site-description motion-element" itemprop="description">如切如磋，如琢如磨</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">15</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#基本信息设置"><span class="nav-number">1.</span> <span class="nav-text">基本信息设置</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#语言设置"><span class="nav-number">1.1.</span> <span class="nav-text">语言设置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#作者"><span class="nav-number">1.2.</span> <span class="nav-text">作者</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#标题"><span class="nav-number">1.3.</span> <span class="nav-text">标题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#侧边头像"><span class="nav-number">1.4.</span> <span class="nav-text">侧边头像</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#功能设置"><span class="nav-number">2.</span> <span class="nav-text">功能设置</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#分类"><span class="nav-number">2.1.</span> <span class="nav-text">分类</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#标签"><span class="nav-number">2.2.</span> <span class="nav-text">标签</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#添加访问次数"><span class="nav-number">2.3.</span> <span class="nav-text">添加访问次数</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#页面显示"><span class="nav-number">3.</span> <span class="nav-text">页面显示</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#页面底部"><span class="nav-number">3.1.</span> <span class="nav-text">页面底部</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#设置预览"><span class="nav-number">3.2.</span> <span class="nav-text">设置预览</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#图片边框"><span class="nav-number">3.3.</span> <span class="nav-text">图片边框</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">sawyer</span>
+</div>
+
+
+<!--
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+-->
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i> 访问人数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i> 访问总量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

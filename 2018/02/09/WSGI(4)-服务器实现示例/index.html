@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="python," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="本节将仔细说明服务器流程并使用pep代码讲解，并写一个自己的wsgi服务器，使其可以被浏览器支持，最后调用自定义的应用以及现有的flask等框架。 主要流程服务器的主要流程如下：  接收application。函数实现可以是参数，类可以在init传入。 创建environ。设置wsgi版本，是否多线程多进程，http或https访问等。 将start_response函数传入应用，用于获取stat">
+<meta name="keywords" content="python">
+<meta property="og:type" content="article">
+<meta property="og:title" content="WSGI(4)-服务器实现示例">
+<meta property="og:url" content="http://yoursite.com/2018/02/09/WSGI(4)-服务器实现示例/index.html">
+<meta property="og:site_name" content="Yun&#39;s Blog">
+<meta property="og:description" content="本节将仔细说明服务器流程并使用pep代码讲解，并写一个自己的wsgi服务器，使其可以被浏览器支持，最后调用自定义的应用以及现有的flask等框架。 主要流程服务器的主要流程如下：  接收application。函数实现可以是参数，类可以在init传入。 创建environ。设置wsgi版本，是否多线程多进程，http或https访问等。 将start_response函数传入应用，用于获取stat">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2018/02/09/WSGI(4)-服务器实现示例/pep_server运行.png">
+<meta property="og:image" content="http://yoursite.com/2018/02/09/WSGI(4)-服务器实现示例/自定义server运行流程.png">
+<meta property="og:image" content="http://yoursite.com/2018/02/09/WSGI(4)-服务器实现示例/自定义server运行.png">
+<meta property="og:updated_time" content="2018-08-04T03:50:45.567Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="WSGI(4)-服务器实现示例">
+<meta name="twitter:description" content="本节将仔细说明服务器流程并使用pep代码讲解，并写一个自己的wsgi服务器，使其可以被浏览器支持，最后调用自定义的应用以及现有的flask等框架。 主要流程服务器的主要流程如下：  接收application。函数实现可以是参数，类可以在init传入。 创建environ。设置wsgi版本，是否多线程多进程，http或https访问等。 将start_response函数传入应用，用于获取stat">
+<meta name="twitter:image" content="http://yoursite.com/2018/02/09/WSGI(4)-服务器实现示例/pep_server运行.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/02/09/WSGI(4)-服务器实现示例/"/>
+
+
+
+
+
+  <title>WSGI(4)-服务器实现示例 | Yun's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Yun's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/09/WSGI(4)-服务器实现示例/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sawyer">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/mineavatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Yun's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">WSGI(4)-服务器实现示例</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-09T14:49:39+08:00">
+                2018-02-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/WSGI/" itemprop="url" rel="index">
+                    <span itemprop="name">WSGI</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i> 浏览
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>次
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>本节将仔细说明服务器流程并使用pep代码讲解，并写一个自己的wsgi服务器，使其可以被浏览器支持，最后调用自定义的应用以及现有的flask等框架。</p>
+<h3 id="主要流程"><a href="#主要流程" class="headerlink" title="主要流程"></a>主要流程</h3><p>服务器的主要流程如下：</p>
+<ol>
+<li>接收application。函数实现可以是参数，类可以在<strong>init</strong>传入。</li>
+<li>创建environ。设置wsgi版本，是否多线程多进程，http或https访问等。</li>
+<li>将start_response函数传入应用，用于获取status和response_header。可接受exc_info，在响应内容被发送的情况下报错，如果在设置响应内容前响应内容缓存有问题则报错。</li>
+<li>在start_response函数中缓存响应头信息。</li>
+<li>获取应用返回的可迭代响应内容。</li>
+<li>调用write函数，用于写数据。写数据必须要在start_response之后，需要获取了status和response_header信息。write第一次响应先写头信息，然后写响应内容。</li>
+</ol>
+<h3 id="PEP333代码"><a href="#PEP333代码" class="headerlink" title="PEP333代码"></a>PEP333代码</h3><p>以下是PEP333提供的代码，这里加一个简单应用使用，这里没有加入http监听，所以只是简单调用即可，该代码实现了以上的流程。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">run_with_cgi</span><span class="params">(application)</span>:</span></span><br><span class="line">    <span class="comment"># 环境变量设置</span></span><br><span class="line">    environ = dict(os.environ.items())</span><br><span class="line">    environ[<span class="string">'wsgi.input'</span>] = sys.stdin</span><br><span class="line">    environ[<span class="string">'wsgi.errors'</span>] = sys.stderr</span><br><span class="line">    environ[<span class="string">'wsgi.version'</span>] = (<span class="number">1</span>, <span class="number">0</span>)</span><br><span class="line">    environ[<span class="string">'wsgi.multithread'</span>] = <span class="keyword">False</span></span><br><span class="line">    environ[<span class="string">'wsgi.multiprocess'</span>] = <span class="keyword">True</span></span><br><span class="line">    environ[<span class="string">'wsgi.run_once'</span>] = <span class="keyword">True</span></span><br><span class="line">    <span class="comment"># http访问设置</span></span><br><span class="line">    <span class="keyword">if</span> environ.get(<span class="string">'HTTPS'</span>, <span class="string">'off'</span>) <span class="keyword">in</span> (<span class="string">'on'</span>, <span class="string">'1'</span>):</span><br><span class="line">        environ[<span class="string">'wsgi.url_scheme'</span>] = <span class="string">'https'</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        environ[<span class="string">'wsgi.url_scheme'</span>] = <span class="string">'http'</span></span><br><span class="line"></span><br><span class="line">    headers_set = []</span><br><span class="line">    headers_sent = []</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">write</span><span class="params">(data)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> headers_set:</span><br><span class="line">            <span class="keyword">raise</span> AssertionError(<span class="string">"write() before start_response()"</span>)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">elif</span> <span class="keyword">not</span> headers_sent:</span><br><span class="line">            <span class="comment"># Before the first output, send the stored headers</span></span><br><span class="line">            status, response_headers = headers_sent[:] = headers_set</span><br><span class="line">            sys.stdout.write(<span class="string">'Status: %s\r\n'</span> % status)</span><br><span class="line">            <span class="keyword">for</span> header <span class="keyword">in</span> response_headers:</span><br><span class="line">                sys.stdout.write(<span class="string">'%s: %s\r\n'</span> % header)</span><br><span class="line">            sys.stdout.write(<span class="string">'\r\n'</span>)</span><br><span class="line">        <span class="comment"># 写数据</span></span><br><span class="line">        sys.stdout.write(data)</span><br><span class="line">        sys.stdout.flush()</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">start_response</span><span class="params">(status, response_headers, exc_info=None)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> exc_info:</span><br><span class="line">            <span class="keyword">try</span>:</span><br><span class="line">                <span class="keyword">if</span> headers_sent:    <span class="comment"># 已发送响应头，则抛出错误</span></span><br><span class="line">                    <span class="comment"># Re-raise original exception if headers sent</span></span><br><span class="line">                    <span class="keyword">raise</span> exc_info[<span class="number">0</span>], exc_info[<span class="number">1</span>], exc_info[<span class="number">2</span>]</span><br><span class="line">            <span class="keyword">finally</span>:</span><br><span class="line">                exc_info = <span class="keyword">None</span>     <span class="comment"># avoid dangling circular ref</span></span><br><span class="line">        <span class="keyword">elif</span> headers_set:   <span class="comment"># 如果已经设置响应头，则抛出错误</span></span><br><span class="line">            <span class="keyword">raise</span> AssertionError(<span class="string">"Headers already set!"</span>)</span><br><span class="line"></span><br><span class="line">        headers_set[:] = [status, response_headers]</span><br><span class="line">        <span class="keyword">return</span> write</span><br><span class="line"></span><br><span class="line">    result = application(environ, start_response)</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="keyword">for</span> data <span class="keyword">in</span> result:</span><br><span class="line">            <span class="keyword">if</span> data:    <span class="comment"># don't send headers until body appears</span></span><br><span class="line">                write(data)</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> headers_sent:</span><br><span class="line">            write(<span class="string">''</span>)   <span class="comment"># send headers now if body was empty</span></span><br><span class="line">    <span class="keyword">finally</span>:</span><br><span class="line">        <span class="keyword">if</span> hasattr(result, <span class="string">'close'</span>):</span><br><span class="line">            result.close()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">simple_app</span><span class="params">(environ, start_response)</span>:</span></span><br><span class="line">    response_headers = [(<span class="string">'Content-Type'</span>, <span class="string">'text/html'</span>)]</span><br><span class="line">    status = <span class="string">'200 OK'</span></span><br><span class="line">    start_response(status, response_headers)</span><br><span class="line">    <span class="keyword">return</span> [<span class="string">"&lt;h1&gt;hello world&lt;/h1&gt;"</span>]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    run_with_cgi(simple_app)</span><br></pre></td></tr></table></figure>
+<p>运行结果如下：<br><img src="/2018/02/09/WSGI(4)-服务器实现示例/pep_server运行.png"></p>
+<h3 id="服务器编写"><a href="#服务器编写" class="headerlink" title="服务器编写"></a>服务器编写</h3><p>以上是pep333提供的服务器代码，实现了一个标准的wsgi服务器，这是一个简单的函数，下面通过改造使用一个类来进行管理，加入socket，使其可以通过浏览器访问。<br>首先说一下服务器的基本流程：</p>
+<ol>
+<li>init。初始化socket；</li>
+<li>bind。绑定socket到某个端口；</li>
+<li>listent。监听端口，持续循环；</li>
+<li>accept。接受请求；</li>
+<li>recv/send。获取数据并响应；</li>
+<li>close。关闭连接。</li>
+</ol>
+<p>下面是实现了wsgi的代码：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># coding=utf8</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> socket</span><br><span class="line"><span class="keyword">import</span> datetime</span><br><span class="line"><span class="keyword">import</span> StringIO</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">WSGIServer</span><span class="params">(object)</span>:</span></span><br><span class="line">    socket_family = socket.AF_INET</span><br><span class="line">    socket_type = socket.SOCK_STREAM</span><br><span class="line">    socket_limit = <span class="number">1</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, host, port)</span>:</span></span><br><span class="line">        <span class="comment"># 初始化</span></span><br><span class="line">        self.socket = socket.socket(self.socket_family, self.socket_type)</span><br><span class="line">        <span class="comment"># 设置socket，否则可能出现地址被使用</span></span><br><span class="line">        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, <span class="number">1</span>)</span><br><span class="line">        <span class="comment"># 绑定主机和端口 </span></span><br><span class="line">        self.socket.bind((host, port))</span><br><span class="line">        <span class="comment"># 开始监听</span></span><br><span class="line">        self.socket.listen(self.socket_limit)</span><br><span class="line">        <span class="comment"># 获取服务主机和端口</span></span><br><span class="line">        self.server_name, self.server_port = self.socket.getsockname()[:<span class="number">2</span>]</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 设置应用</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">set_application</span><span class="params">(self, application)</span>:</span></span><br><span class="line">        self.application = application</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 循环接收请求</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">serve_forever</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">while</span> <span class="keyword">True</span>:</span><br><span class="line">            <span class="comment"># 获取连接</span></span><br><span class="line">            self.client_connect, self.client_address = self.socket.accept()</span><br><span class="line">            self.handle_request()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 处理请求</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">handle_request</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="comment"># 获取数据</span></span><br><span class="line">        self.request_data = self.client_connect.recv(<span class="number">1024</span>)</span><br><span class="line">        self.request_lines = self.request_data.splitlines()</span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            self.parse_request()</span><br><span class="line">            env = self.get_environ()</span><br><span class="line">            resp_data = self.application(env, self.start_response)</span><br><span class="line">            self.finish_response(resp_data)</span><br><span class="line">        <span class="keyword">except</span> Exception:</span><br><span class="line">            <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 获取请求方式，访问路径，以及访问版本</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">parse_request</span><span class="params">(self)</span>:</span></span><br><span class="line">        request_line = self.request_lines[<span class="number">0</span>]</span><br><span class="line">        self.request_method, self.path, self.request_version = request_line.split()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 获取环境参数</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_environ</span><span class="params">(self)</span>:</span></span><br><span class="line">        env = &#123;</span><br><span class="line">            <span class="comment"># wsgi环境参数</span></span><br><span class="line">            <span class="string">'wsgi.version'</span>: (<span class="number">0</span>, <span class="number">1</span>),</span><br><span class="line">            <span class="string">'wsgi.url_scheme'</span>: <span class="string">'http'</span>,</span><br><span class="line">            <span class="string">'wsgi.input'</span>: StringIO.StringIO(self.request_data),</span><br><span class="line">            <span class="string">'wsgi.errors'</span>: sys.stderr,</span><br><span class="line">            <span class="string">'wsgi.multithread'</span>: <span class="keyword">False</span>,</span><br><span class="line">            <span class="string">'wsgi.multiprocess'</span>: <span class="keyword">False</span>,</span><br><span class="line">            <span class="string">'wsgi.run_once'</span>: <span class="keyword">False</span>,</span><br><span class="line">            <span class="comment"># cgi环境参数</span></span><br><span class="line">            <span class="string">'REQUEST_METHOD'</span>: self.request_method,</span><br><span class="line">            <span class="string">'PATH_INFO'</span>: self.path,</span><br><span class="line">            <span class="string">'SERVER_NAME'</span>: self.server_name,</span><br><span class="line">            <span class="string">'SERVER_PORT'</span>: str(self.server_port)</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> env</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">start_response</span><span class="params">(self, status, response_headers, exc_info=None)</span>:</span></span><br><span class="line">        headers = [</span><br><span class="line">            (<span class="string">'Data'</span>, datetime.datetime.now().strftime(<span class="string">'%a, %d %b %Y %H:%M:%S GMT'</span>)),</span><br><span class="line">            (<span class="string">'Server'</span>, <span class="string">'WSGIServer 0.1'</span>)</span><br><span class="line">        ]</span><br><span class="line">        self.response_headers = response_headers + headers</span><br><span class="line">        self.status = status</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 响应请求，写数据</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">finish_response</span><span class="params">(self, resp_data)</span>:</span></span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            response = <span class="string">'HTTP/1.1 &#123;status&#125;\r\n'</span>.format(status=self.status)</span><br><span class="line">            <span class="keyword">for</span> header <span class="keyword">in</span> self.response_headers:</span><br><span class="line">                response += <span class="string">'&#123;0&#125;:&#123;1&#125;\r\n'</span>.format(*header)</span><br><span class="line">            response += <span class="string">'\r\n'</span></span><br><span class="line">            <span class="keyword">for</span> data <span class="keyword">in</span> resp_data:</span><br><span class="line">                response += data</span><br><span class="line">            self.client_connect.sendall(response)</span><br><span class="line">        <span class="keyword">finally</span>:</span><br><span class="line">            self.client_connect.close()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建服务</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">make_server</span><span class="params">(host, port, application)</span>:</span></span><br><span class="line">    server = WSGIServer(host, port)</span><br><span class="line">    server.set_application(application)</span><br><span class="line">    <span class="keyword">return</span> server</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">simple_app</span><span class="params">(environ, start_response)</span>:</span></span><br><span class="line">    response_headers = [(<span class="string">'Content-Type'</span>, <span class="string">'text/html'</span>)]</span><br><span class="line">    status = <span class="string">'200 OK'</span></span><br><span class="line">    start_response(status, response_headers)</span><br><span class="line">    <span class="keyword">return</span> [<span class="string">"&lt;h1&gt;hello world&lt;/h1&gt;"</span>]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    PORT = <span class="number">7000</span></span><br><span class="line">    server = make_server(<span class="string">''</span>, PORT, simple_app)</span><br><span class="line">    server.serve_forever()</span><br></pre></td></tr></table></figure></p>
+<p>代码中的调用关系如下：<br><img src="/2018/02/09/WSGI(4)-服务器实现示例/自定义server运行流程.png"><br>这里可以看到其主要流程有如下：</p>
+<ol>
+<li>main程序中调用make_server得到server；</li>
+<li>server调用server_forever开始循环监听；</li>
+<li>server_forever调用handle_request，用于处理请求；</li>
+<li>handle_request调用parse_request解析请求内容；</li>
+<li>handle_request调用get_environ获取env；</li>
+<li>handle_request调用application，传入env和start_response；</li>
+<li>application调用start_response，传入status和response_headers；</li>
+<li>application返回resp_data；</li>
+<li>handle_request调用finish_response，传入resp_data。</li>
+</ol>
+<p>每次请求循环执行4-9。</p>
+<h3 id="使用flask应用"><a href="#使用flask应用" class="headerlink" title="使用flask应用"></a>使用flask应用</h3><p>写一个简单的flask应用<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask</span><br><span class="line"></span><br><span class="line">app = Flask(<span class="string">'flask_app'</span>)</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route('/')</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">hello_world</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="keyword">return</span> <span class="string">'Hello World!'</span></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route('/test')</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">test</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="keyword">return</span> <span class="string">'route_test'</span></span><br></pre></td></tr></table></figure></p>
+<p>调用方式:<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">PORT = <span class="number">7000</span></span><br><span class="line">server = make_server(<span class="string">''</span>, PORT, app.wsgi_app)</span><br><span class="line">server.serve_forever()</span><br></pre></td></tr></table></figure></p>
+<p>需要注意的是这里应用需要使用flask实例的wsgi_app。<br>调用结果如下：<br><img src="/2018/02/09/WSGI(4)-服务器实现示例/自定义server运行.png"><br>这里还可以加入更多的比如jinja模板等。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/python/" rel="tag"># python</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/01/26/WSGI(3)-应用实现示例/" rel="next" title="WSGI(3)-应用实现示例">
+                <i class="fa fa-chevron-left"></i> WSGI(3)-应用实现示例
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/02/23/WSGI(5)-中间件实现示例/" rel="prev" title="WSGI(5)-中间件实现示例">
+                WSGI(5)-中间件实现示例 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/mineavatar.jpg"
+               alt="sawyer" />
+          <p class="site-author-name" itemprop="name">sawyer</p>
+           
+              <p class="site-description motion-element" itemprop="description">如切如磋，如琢如磨</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">15</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#主要流程"><span class="nav-number">1.</span> <span class="nav-text">主要流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#PEP333代码"><span class="nav-number">2.</span> <span class="nav-text">PEP333代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#服务器编写"><span class="nav-number">3.</span> <span class="nav-text">服务器编写</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用flask应用"><span class="nav-number">4.</span> <span class="nav-text">使用flask应用</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">sawyer</span>
+</div>
+
+
+<!--
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+-->
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i> 访问人数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i> 访问总量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

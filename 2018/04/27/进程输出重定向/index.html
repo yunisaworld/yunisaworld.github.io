@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Linux," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="跑程序的时候通过终端连接服务器，为了让跑的程序不受终端关闭的影响会选择后台运行。这里有一个后台运行的例子，使用disown命令让程序后台执行，关闭终端，重启一个终端通过查看进程可以发现程序正常运行，因为disown使用后就不在jobs列表中，也就不能通过fg指令让其在前台运行，所以不清楚进程执行的情况。 问题分析一般在开启的终端可以通过shell的指令在后台执行。其操作主要是：  command">
+<meta name="keywords" content="Linux">
+<meta property="og:type" content="article">
+<meta property="og:title" content="进程输出重定向">
+<meta property="og:url" content="http://yoursite.com/2018/04/27/进程输出重定向/index.html">
+<meta property="og:site_name" content="Yun&#39;s Blog">
+<meta property="og:description" content="跑程序的时候通过终端连接服务器，为了让跑的程序不受终端关闭的影响会选择后台运行。这里有一个后台运行的例子，使用disown命令让程序后台执行，关闭终端，重启一个终端通过查看进程可以发现程序正常运行，因为disown使用后就不在jobs列表中，也就不能通过fg指令让其在前台运行，所以不清楚进程执行的情况。 问题分析一般在开启的终端可以通过shell的指令在后台执行。其操作主要是：  command">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2018/04/27/进程输出重定向/后台进程id.png">
+<meta property="og:image" content="http://yoursite.com/2018/04/27/进程输出重定向/父进程id.png">
+<meta property="og:image" content="http://yoursite.com/2018/04/27/进程输出重定向/disown使用前后区别.png">
+<meta property="og:image" content="http://yoursite.com/2018/04/27/进程输出重定向/进程原指向.png">
+<meta property="og:image" content="http://yoursite.com/2018/04/27/进程输出重定向/gdb修改.png">
+<meta property="og:image" content="http://yoursite.com/2018/04/27/进程输出重定向/进程原修改后指向.png">
+<meta property="og:image" content="http://yoursite.com/2018/04/27/进程输出重定向/输出.png">
+<meta property="og:updated_time" content="2018-08-04T03:50:45.588Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="进程输出重定向">
+<meta name="twitter:description" content="跑程序的时候通过终端连接服务器，为了让跑的程序不受终端关闭的影响会选择后台运行。这里有一个后台运行的例子，使用disown命令让程序后台执行，关闭终端，重启一个终端通过查看进程可以发现程序正常运行，因为disown使用后就不在jobs列表中，也就不能通过fg指令让其在前台运行，所以不清楚进程执行的情况。 问题分析一般在开启的终端可以通过shell的指令在后台执行。其操作主要是：  command">
+<meta name="twitter:image" content="http://yoursite.com/2018/04/27/进程输出重定向/后台进程id.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/04/27/进程输出重定向/"/>
+
+
+
+
+
+  <title>进程输出重定向 | Yun's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Yun's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/04/27/进程输出重定向/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sawyer">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/mineavatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Yun's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">进程输出重定向</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-27T21:40:50+08:00">
+                2018-04-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux应用问题/" itemprop="url" rel="index">
+                    <span itemprop="name">Linux应用问题</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i> 浏览
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>次
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>跑程序的时候通过终端连接服务器，为了让跑的程序不受终端关闭的影响会选择后台运行。这里有一个后台运行的例子，使用disown命令让程序后台执行，关闭终端，重启一个终端通过查看进程可以发现程序正常运行，因为disown使用后就不在jobs列表中，也就不能通过fg指令让其在前台运行，所以不清楚进程执行的情况。</p>
+<h3 id="问题分析"><a href="#问题分析" class="headerlink" title="问题分析"></a>问题分析</h3><p>一般在开启的终端可以通过shell的指令在后台执行。其操作主要是：</p>
+<ol>
+<li>command &amp; 程序在后台执行</li>
+<li>jobs -l 查看后台运行的进程</li>
+<li>fg %n 让进程n到前台来，能通过jobs -l查看</li>
+<li>bg %n 让进程n到后台运行<br>如果一开始在前台运行的程序通过ctrl+z可以暂停，然后换到后台执行。这里的操作都是基于当前终端，如果当前终端被关闭，程序就会退出。<br>为了进行测试这里使用一个while循环执行的文件.<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># coding=utf-8</span></span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">test</span><span class="params">()</span>:</span></span><br><span class="line">    a = <span class="number">0</span> </span><br><span class="line">    <span class="keyword">while</span> <span class="keyword">True</span>:</span><br><span class="line">        time.sleep(<span class="number">60</span>)</span><br><span class="line">        a = a + <span class="number">1</span> </span><br><span class="line">        <span class="keyword">print</span> a</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">    test()</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>后台运行该程序，该进程id为91587。<br><img src="/2018/04/27/进程输出重定向/后台进程id.png"><br>这个过程中发现程序即使后台运行，但是其IO还是输出到屏幕。通过查找该进程发现其父进程是bash。<br><img src="/2018/04/27/进程输出重定向/父进程id.png"><br>在我们关掉终端的时候会发送SIGHUP信号给运行脚本的进程，所以会被关闭。因此会有人使用其它方式使运行中的进程脱离终端。其中disown指令就是一种方式，disown是bash的builtin指令，针对jobs操作。disown部分指令如下：</p>
+<ol>
+<li>disown 让最近运行的进程脱离jobs，不接受SIGHUP信号</li>
+<li>disown -h %n 让job n不接受SIGHUP<br>通过disown执行后进程将不再能通过jobs查到，只能通过ps查看。从下图中可以看到，当终端关闭的时候会移交给init处理。<img src="/2018/04/27/进程输出重定向/disown使用前后区别.png">
+</li>
+</ol>
+<p>以上操作的过程中发现，在终端未关闭之前，可以看到脚本输出会输出到屏幕，终端关闭后就见不到输出了。这里可以想到进程的输出在终端中运行的时候是指向屏幕，所以想要得到输出需要思考两个问题：</p>
+<ol>
+<li>我们需要知道关闭终端对进程输出的指向的处理是什么样的？</li>
+<li>如何改变进程的输出？<br>通过在/proc目录中找到运行的进程的fd，即文件描述符，其路径为/proc/[pid]/fd，其中pid是进程号。下图中可以看到这里进程的fd，其中0是stdin，1是stdout，2是stderr，这里可以看到进程的输出都是指向/dev/pts/6的，而6已经被我们关闭，所以无法输出。对于一些程序而言，如果找不到标准输出可能就直接错误退出了。<img src="/2018/04/27/进程输出重定向/进程原指向.png">
+</li>
+</ol>
+<h3 id="解决方法"><a href="#解决方法" class="headerlink" title="解决方法"></a>解决方法</h3><p>通过上面的分析可以知道，我们想要得到输出，就需要重定向进程的fd。<br>通过gdb的方式<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gdb -p [pid]</span><br></pre></td></tr></table></figure></p>
+<img src="/2018/04/27/进程输出重定向/gdb修改.png">
+<p>这里已经修改成功，查看指向已经指向了我们设定的文件。<br><img src="/2018/04/27/进程输出重定向/进程原修改后指向.png"><br>我们去查看文件内容，可以发现，进程已经在想b.log输出了。<br><img src="/2018/04/27/进程输出重定向/输出.png"></p>
+<h3 id="思考"><a href="#思考" class="headerlink" title="思考"></a>思考</h3><p>对于我们自己的程序可以比较方便的使用gdb进行冲重定向的修改，但是如果涉及到第三方的程序，我们应该避免这类问题。这里列出几个方案，可以在后台进行运行。<br>1、使用nohup<br>nohup [command] &amp;<br>使用该命令默认会将输出输出到一个nohup.out的文件，所以不用担心日志的问题。这个指令和disown不同之处在于这是针对命令，而disown是针对jobs的任务。<br>2、使用screen<br>这个命令可以创建一个自己的终端，和ssh连接的那个不同，ssh连接的会在进程树中看到所有bash的执行都是其树下的进程。<br>3、使用supervisor<br>可以通过supervisor启动进程，也方便做进程管理，可以配置web页面，可以查看进程情况。<br>除了后台运行的方式，还应该要注意输出方式。<br>1、使用重定向。一方面是输出不会影响屏幕，一方面是以免断开连接后不方便获取输出内容。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[command] &gt;[path] 2&gt;&amp;1</span><br></pre></td></tr></table></figure></p>
+<p>其中path可以使用/dev/null来表示不输出，另外在写重定向时错误输出和正常信息输出不要去抢占一个文件通道，否则可能出现错误。<br>2、使用日志输出。这种是比较推荐的，直接写入日志，这样可以更加方便，也可以随时去查看。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Linux/" rel="tag"># Linux</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/04/13/python内存管理/" rel="next" title="python内存管理">
+                <i class="fa fa-chevron-left"></i> python内存管理
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/mineavatar.jpg"
+               alt="sawyer" />
+          <p class="site-author-name" itemprop="name">sawyer</p>
+           
+              <p class="site-description motion-element" itemprop="description">如切如磋，如琢如磨</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">15</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#问题分析"><span class="nav-number">1.</span> <span class="nav-text">问题分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#解决方法"><span class="nav-number">2.</span> <span class="nav-text">解决方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#思考"><span class="nav-number">3.</span> <span class="nav-text">思考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">sawyer</span>
+</div>
+
+
+<!--
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+-->
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i> 访问人数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i> 访问总量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

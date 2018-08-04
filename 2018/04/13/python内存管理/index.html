@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="python," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="python中的内存管理包括对象对内存的使用，python基于C实现的底层也是使用malloc和free来进行内存管理，除了一些常规的存储以外，还有一些特殊的存储方式用于优化内存的申请释放，其中有小整数对象池、大整数对象池、字符串intern机制等。除了存储，内存释放是内存管理中十分重要的部分。python的垃圾回收主要是通过引用计数，另外通过标记清除和分代回收机制来实现解决引用计数不能处理的循环">
+<meta name="keywords" content="python">
+<meta property="og:type" content="article">
+<meta property="og:title" content="python内存管理">
+<meta property="og:url" content="http://yoursite.com/2018/04/13/python内存管理/index.html">
+<meta property="og:site_name" content="Yun&#39;s Blog">
+<meta property="og:description" content="python中的内存管理包括对象对内存的使用，python基于C实现的底层也是使用malloc和free来进行内存管理，除了一些常规的存储以外，还有一些特殊的存储方式用于优化内存的申请释放，其中有小整数对象池、大整数对象池、字符串intern机制等。除了存储，内存释放是内存管理中十分重要的部分。python的垃圾回收主要是通过引用计数，另外通过标记清除和分代回收机制来实现解决引用计数不能处理的循环">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2018/04/13/python内存管理/reach.png">
+<meta property="og:updated_time" content="2018-08-04T03:50:45.585Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="python内存管理">
+<meta name="twitter:description" content="python中的内存管理包括对象对内存的使用，python基于C实现的底层也是使用malloc和free来进行内存管理，除了一些常规的存储以外，还有一些特殊的存储方式用于优化内存的申请释放，其中有小整数对象池、大整数对象池、字符串intern机制等。除了存储，内存释放是内存管理中十分重要的部分。python的垃圾回收主要是通过引用计数，另外通过标记清除和分代回收机制来实现解决引用计数不能处理的循环">
+<meta name="twitter:image" content="http://yoursite.com/2018/04/13/python内存管理/reach.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/04/13/python内存管理/"/>
+
+
+
+
+
+  <title>python内存管理 | Yun's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Yun's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/04/13/python内存管理/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sawyer">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/mineavatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Yun's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">python内存管理</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-13T20:28:27+08:00">
+                2018-04-13
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/python基础/" itemprop="url" rel="index">
+                    <span itemprop="name">python基础</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i> 浏览
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>次
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>python中的内存管理包括对象对内存的使用，python基于C实现的底层也是使用malloc和free来进行内存管理，除了一些常规的存储以外，还有一些特殊的存储方式用于优化内存的申请释放，其中有小整数对象池、大整数对象池、字符串intern机制等。除了存储，内存释放是内存管理中十分重要的部分。python的垃圾回收主要是通过引用计数，另外通过标记清除和分代回收机制来实现解决引用计数不能处理的循环引用问题。</p>
+<h3 id="小整数对象池"><a href="#小整数对象池" class="headerlink" title="小整数对象池"></a>小整数对象池</h3><p>小整数在程序中使用很频繁，python为了优化速度，提前建立好整数对象，避免了频繁申请和释放空间。建立这些整数的空间就是小整数对象池。其定义的范围为[-5,256]，只要是在这个范围内的整数都是使用同一个对象。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; id(1)</span><br><span class="line">39107688</span><br><span class="line">&gt;&gt;&gt; id(2)</span><br><span class="line">39107664</span><br><span class="line">&gt;&gt;&gt; a=1</span><br><span class="line">&gt;&gt;&gt; id(a)</span><br><span class="line">39107688</span><br><span class="line">&gt;&gt;&gt; b=a</span><br><span class="line">&gt;&gt;&gt; id(b)</span><br><span class="line">39107688</span><br><span class="line">&gt;&gt;&gt; b=b+1</span><br><span class="line">&gt;&gt;&gt; id(b)</span><br><span class="line">39107664</span><br></pre></td></tr></table></figure></p>
+<h3 id="大整数对象池"><a href="#大整数对象池" class="headerlink" title="大整数对象池"></a>大整数对象池</h3><p>在终端中内次都是执行一次，大整数都是重新创建，在整个文件运行的时候，文件中所有代码都加载到内存中，则同一代码块的大整数都通过大整数对象池管理，相同值使用相同对象。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">a=<span class="number">1000</span></span><br><span class="line">b=<span class="number">1000</span></span><br><span class="line"><span class="keyword">print</span> a <span class="keyword">is</span> b	//<span class="keyword">True</span></span><br></pre></td></tr></table></figure></p>
+<h3 id="字符串intern机制"><a href="#字符串intern机制" class="headerlink" title="字符串intern机制"></a>字符串intern机制</h3><p>和之前的对象池机制一样，python会维护一个interned对象，在python中实际是一个PyDictObject，创建一个字符串的时候会先创建一个temp对象，然后通过PyDict_GetItem去查找有没有相同的字符串，有就替换，然后销毁temp，没有就通过PyDict_SetItem设置到interned对象中。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; a1=&quot;helloworld&quot;</span><br><span class="line">&gt;&gt;&gt; a2=&quot;helloworld&quot;</span><br><span class="line">&gt;&gt;&gt; a1 is a2</span><br><span class="line">True</span><br></pre></td></tr></table></figure></p>
+<p>另外对于字符串有长度限制，默认是20，如果超过20会认为不常用。另外也是仅包含下划线、数字、字母的字符串，对于空格的就不支持，但也有解释器没有该限制。<br>字符串拼接的情况不会作为一个字符串。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; a1=&quot;helloworld&quot;</span><br><span class="line">&gt;&gt;&gt; a1+=&quot;test&quot;</span><br><span class="line">&gt;&gt;&gt; a2=&quot;helloworldtest&quot;</span><br><span class="line">&gt;&gt;&gt; a1 is a2</span><br><span class="line">False</span><br><span class="line">&gt;&gt;&gt; id(a1)</span><br><span class="line">140455102787912</span><br><span class="line">&gt;&gt;&gt; id(a2)</span><br><span class="line">140455102788472</span><br></pre></td></tr></table></figure></p>
+<h3 id="垃圾回收"><a href="#垃圾回收" class="headerlink" title="垃圾回收"></a>垃圾回收</h3><h4 id="计数引用"><a href="#计数引用" class="headerlink" title="计数引用"></a>计数引用</h4><p>对于python中的每一个对象，都会提供一个变量用于存储其引用的数量。该变量用于判断是否可以释放改对象内存空间。下面是python对象的定义<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"> <span class="keyword">typedef</span> struct_object &#123;</span><br><span class="line">	<span class="keyword">int</span> ob_refcnt;</span><br><span class="line">	struct_typeobject *ob_type;</span><br><span class="line">&#125; PyObject;</span><br></pre></td></tr></table></figure></p>
+<p>其中ob_refcnt就是表示引用计数的变量，当一个对象的引用计数为0的时候，该对象在缓冲区则会继续等待被引用，在非缓冲区就会被释放。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; a=[]</span><br><span class="line">&gt;&gt;&gt; sys.getrefcount(a)</span><br><span class="line">2</span><br><span class="line">&gt;&gt;&gt; b=a</span><br><span class="line">&gt;&gt;&gt; sys.getrefcount(a)</span><br><span class="line">3</span><br><span class="line">&gt;&gt;&gt; del b</span><br><span class="line">&gt;&gt;&gt; sys.getrefcount(a)</span><br><span class="line">2</span><br><span class="line">&gt;&gt;&gt;del</span><br></pre></td></tr></table></figure></p>
+<p>这里可以看到给a一个空的list，然后查询引用次数，可以看到为2，因为getrefcount会生成一个临时引用。然后给b赋值后会有3个引用。如果b指向其它对象或者通过del操作，则引用就会减1。（这里用一个list的原因是如果用普通的数字可能会出现很多引用的情况，这是python运行时的引用）</p>
+<h4 id="循环引用问题"><a href="#循环引用问题" class="headerlink" title="循环引用问题"></a>循环引用问题</h4><p>引用计数可以消除大多数情况下不再使用的内存空间，但是不能解决循环引用。循环引用导致的原因是对象之间的相互引用，有点类似于C++头文件或者类相互包含出现初始化的问题。下面是一个循环引用的例子：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; l=[]</span><br><span class="line">&gt;&gt;&gt; sys.getrefcount(l)</span><br><span class="line">2</span><br><span class="line">&gt;&gt;&gt; l.append(l)</span><br><span class="line">&gt;&gt;&gt; sys.getrefcount(l)</span><br><span class="line">3</span><br><span class="line">&gt;&gt;&gt; l</span><br><span class="line">[[...]]</span><br></pre></td></tr></table></figure></p>
+<p>可以看到在l中又引用了自己，从而造成print的死循环。这种情况下面引用计数永远都是为2，所以无法被释放。</p>
+<h4 id="标记清除"><a href="#标记清除" class="headerlink" title="标记清除"></a>标记清除</h4><p>基于追踪回收（tracing GC）计数实现。其主要有几个步骤：<br>1、找到root object集合<br>2、从root object出发所有通过引用可达的对象标记为reachable<br>3、清除非reachable对象<br>其中寻找引用可达的过程如下：<br><img src="/2018/04/13/python内存管理/reach.png"><br>图中黑色节点为root object，从root出发，以引用作为边，可以找到3个黄色的reachable节点，而其中灰色的节点为unreachable节点。<br>在python中通过gc.collect回收。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; l=[]</span><br><span class="line">&gt;&gt;&gt; l.append(l)</span><br><span class="line">&gt;&gt;&gt; del l</span><br><span class="line">&gt;&gt;&gt; gc.collect()</span><br><span class="line">1</span><br></pre></td></tr></table></figure></p>
+<p>另外可以通过gc调试输出不同设置下的信息。下面看看通过gc回收失败的情况。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> gc</span><br><span class="line"></span><br><span class="line">gc.set_debug(gc.DEBUG_STATS|gc.DEBUG_COLLECTABLE|gc.DEBUG_UNCOLLECTABLE|gc.DEBUG_OBJECTS)</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span>:</span></span><br><span class="line">    <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">B</span>:</span></span><br><span class="line">    <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    a = A()</span><br><span class="line">    b = B()</span><br><span class="line">    a.b = b</span><br><span class="line">    b.a = a</span><br><span class="line">    <span class="keyword">del</span> a</span><br><span class="line">    <span class="keyword">del</span> b</span><br><span class="line">    <span class="keyword">print</span> gc.collect()</span><br><span class="line">    <span class="keyword">print</span> gc.garbage</span><br></pre></td></tr></table></figure></p>
+<p>输出：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">gc: collecting generation 2...</span><br><span class="line">gc: objects in each generation: 601 3153 0</span><br><span class="line">gc: collectable &lt;instance 0x7f9f06dbf638&gt;</span><br><span class="line">gc: collectable &lt;instance 0x7f9f06dbf680&gt;</span><br><span class="line">gc: collectable &lt;dict 0x16dddc0&gt;</span><br><span class="line">gc: collectable &lt;dict 0x16de000&gt;</span><br><span class="line">gc: done, 4 unreachable, 0 uncollectable, 0.0018s elapsed.</span><br><span class="line">4</span><br><span class="line">[]</span><br><span class="line">gc: collecting generation 2...</span><br><span class="line">gc: objects in each generation: 2 0 3419</span><br><span class="line">gc: done, 0.0014s elapsed.</span><br></pre></td></tr></table></figure></p>
+<p>可以看到每个对象都包含两个unreachable，一个是instance一个是dict<br>如果在类里面实现<strong>del</strong>，即<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__del__</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">B</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__del__</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">pass</span></span><br></pre></td></tr></table></figure></p>
+<p>输出：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">gc: collecting generation 2...</span><br><span class="line">gc: objects in each generation: 611 3153 0</span><br><span class="line">gc: uncollectable &lt;instance 0x7fa1f4709758&gt;</span><br><span class="line">gc: uncollectable &lt;instance 0x7fa1f47097a0&gt;</span><br><span class="line">gc: uncollectable &lt;dict 0x26adc60&gt;</span><br><span class="line">gc: uncollectable &lt;dict 0x26b5fb0&gt;</span><br><span class="line">gc: done, 4 unreachable, 4 uncollectable, 0.0018s elapsed.</span><br><span class="line">4</span><br><span class="line">[&lt;__main__.A instance at 0x7fa1f4709758&gt;, &lt;__main__.B instance at 0x7fa1f47097a0&gt;]</span><br><span class="line">gc: collecting generation 2...</span><br><span class="line">gc: objects in each generation: 2 0 3427</span><br><span class="line">gc: done, 0.0009s elapsed.</span><br></pre></td></tr></table></figure></p>
+<p>可以发现并没有被释放掉。所以在编写代码时尽可能不要自定义<strong>del</strong>。<br>帮助文档：<a href="https://docs.python.org/2/library/gc.html" target="_blank" rel="noopener">https://docs.python.org/2/library/gc.html</a><br>标记清除缺点：<br>1、需要扫描整个堆内存。</p>
+<h4 id="分代回收"><a href="#分代回收" class="headerlink" title="分代回收"></a>分代回收</h4><p>对象引用数为0的时候不是马上进行回收，而是需要达到一定数量时才进行回收。gc采用分代回收法，将对象根据存活时间分为3代，新建对象是0代，0代经过一次自动回收后没有被释放的对象进入1代，然后同样1代没有回收的就进入2代。其回收规则如下：<br>1、0代对象引用数为0的对象到700时，启动一次0代对象垃圾回收；<br>2、10次0代回收，启动一次0和1代垃圾回收；<br>3、10次1代回收，启动一次0、1、2代垃圾回收。<br>这种设计的原因是越是前期不会被删除的对象，其生命周期也会越长。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/python/" rel="tag"># python</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/04/07/beego使用(4)-其它说明/" rel="next" title="beego使用(4)-其它说明">
+                <i class="fa fa-chevron-left"></i> beego使用(4)-其它说明
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/04/27/进程输出重定向/" rel="prev" title="进程输出重定向">
+                进程输出重定向 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/mineavatar.jpg"
+               alt="sawyer" />
+          <p class="site-author-name" itemprop="name">sawyer</p>
+           
+              <p class="site-description motion-element" itemprop="description">如切如磋，如琢如磨</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">15</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#小整数对象池"><span class="nav-number">1.</span> <span class="nav-text">小整数对象池</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#大整数对象池"><span class="nav-number">2.</span> <span class="nav-text">大整数对象池</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#字符串intern机制"><span class="nav-number">3.</span> <span class="nav-text">字符串intern机制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#垃圾回收"><span class="nav-number">4.</span> <span class="nav-text">垃圾回收</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#计数引用"><span class="nav-number">4.1.</span> <span class="nav-text">计数引用</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#循环引用问题"><span class="nav-number">4.2.</span> <span class="nav-text">循环引用问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#标记清除"><span class="nav-number">4.3.</span> <span class="nav-text">标记清除</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#分代回收"><span class="nav-number">4.4.</span> <span class="nav-text">分代回收</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">sawyer</span>
+</div>
+
+
+<!--
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+-->
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i> 访问人数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i> 访问总量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

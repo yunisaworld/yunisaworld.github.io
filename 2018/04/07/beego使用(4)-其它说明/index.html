@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="go," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="前面已经说明beego使用的主要部分，另外beego还提供了一些其他内容，比如日志，接口文档，测试，以及前端的一些设置等，这里罗列出之前没有说明的一些，如果有其它的再补充说明。 日志日志设置可以在main.go文件中加入，在init函数中调用。需要引入模块github.com/astaxie/beego/logs。1234567891011121314151617181920func initLo">
+<meta name="keywords" content="go">
+<meta property="og:type" content="article">
+<meta property="og:title" content="beego使用(4)-其它说明">
+<meta property="og:url" content="http://yoursite.com/2018/04/07/beego使用(4)-其它说明/index.html">
+<meta property="og:site_name" content="Yun&#39;s Blog">
+<meta property="og:description" content="前面已经说明beego使用的主要部分，另外beego还提供了一些其他内容，比如日志，接口文档，测试，以及前端的一些设置等，这里罗列出之前没有说明的一些，如果有其它的再补充说明。 日志日志设置可以在main.go文件中加入，在init函数中调用。需要引入模块github.com/astaxie/beego/logs。1234567891011121314151617181920func initLo">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2018/04/07/beego使用(4)-其它说明/swagger页面.png">
+<meta property="og:image" content="http://yoursite.com/2018/04/07/beego使用(4)-其它说明/项目接口.png">
+<meta property="og:image" content="http://yoursite.com/2018/04/07/beego使用(4)-其它说明/具体接口.png">
+<meta property="og:image" content="http://yoursite.com/2018/04/07/beego使用(4)-其它说明/static列表.png">
+<meta property="og:updated_time" content="2018-08-04T03:50:45.572Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="beego使用(4)-其它说明">
+<meta name="twitter:description" content="前面已经说明beego使用的主要部分，另外beego还提供了一些其他内容，比如日志，接口文档，测试，以及前端的一些设置等，这里罗列出之前没有说明的一些，如果有其它的再补充说明。 日志日志设置可以在main.go文件中加入，在init函数中调用。需要引入模块github.com/astaxie/beego/logs。1234567891011121314151617181920func initLo">
+<meta name="twitter:image" content="http://yoursite.com/2018/04/07/beego使用(4)-其它说明/swagger页面.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/04/07/beego使用(4)-其它说明/"/>
+
+
+
+
+
+  <title>beego使用(4)-其它说明 | Yun's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Yun's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/04/07/beego使用(4)-其它说明/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sawyer">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/mineavatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Yun's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">beego使用(4)-其它说明</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-07T21:49:55+08:00">
+                2018-04-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/beego使用/" itemprop="url" rel="index">
+                    <span itemprop="name">beego使用</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i> 浏览
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>次
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>前面已经说明beego使用的主要部分，另外beego还提供了一些其他内容，比如日志，接口文档，测试，以及前端的一些设置等，这里罗列出之前没有说明的一些，如果有其它的再补充说明。</p>
+<h3 id="日志"><a href="#日志" class="headerlink" title="日志"></a>日志</h3><p>日志设置可以在main.go文件中加入，在init函数中调用。需要引入模块github.com/astaxie/beego/logs。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">initLog</span><span class="params">()</span></span> &#123;</span><br><span class="line">    runmode := beego.AppConfig.String(<span class="string">"runmode"</span>)</span><br><span class="line">    logs.Reset()</span><br><span class="line">    <span class="keyword">if</span> runmode != <span class="string">"prod"</span> &#123;</span><br><span class="line">        logs.SetLogger(logs.AdapterFile, fmt.Sprintf(<span class="string">`&#123;"filename": "%s"&#125;`</span>, beego.AppConfig.String(<span class="string">"LogFile"</span>)))</span><br><span class="line">        logs.EnableFuncCallDepth(<span class="literal">true</span>)</span><br><span class="line">        logs.SetLogFuncCallDepth(<span class="number">4</span>)</span><br><span class="line">        logs.SetLevel(logs.LevelDebug)</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        logs.SetLogger(logs.AdapterFile,</span><br><span class="line">            fmt.Sprintf(<span class="string">`&#123;"filename": "%s"&#125;`</span>, beego.AppConfig.String(<span class="string">"LogFile"</span>)))</span><br><span class="line">        l, err := beego.AppConfig.Int(<span class="string">"LogLevel"</span>)</span><br><span class="line">        <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">            <span class="built_in">panic</span>(<span class="string">"log level not found"</span>)</span><br><span class="line">        &#125;   </span><br><span class="line">        logs.EnableFuncCallDepth(<span class="literal">true</span>)</span><br><span class="line">        logs.SetLogFuncCallDepth(<span class="number">4</span>)</span><br><span class="line">        logs.SetLevel(l)</span><br><span class="line">    &#125;   </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>在日志设置中，首先是从conf文件中获取当前的运行模式，一般会有开发、上线、测试等。然后将log重置。接着是设置输出引擎，主要有AdapterConsole（输出到控制台）、AdapterFile（输出到文件）等，另外其它引擎和参数参考使用手册即可。<br>然后需要设置日志级别。级别越低会打印更多信息，一般情况有错误、警告、普通信息、debug调试信息等。不同的信息在beego中对应不同的输出函数，比如：<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">beego.Emergency(<span class="string">"this is emergency"</span>)</span><br><span class="line">beego.Alert(<span class="string">"this is alert"</span>)</span><br><span class="line">beego.Critical(<span class="string">"this is critical"</span>)</span><br><span class="line">beego.Error(<span class="string">"this is error"</span>)</span><br><span class="line">beego.Warning(<span class="string">"this is warning"</span>)</span><br><span class="line">beego.Notice(<span class="string">"this is notice"</span>)</span><br><span class="line">beego.Informational(<span class="string">"this is informational"</span>)</span><br><span class="line">beego.Debug(<span class="string">"this is debug"</span>)</span><br></pre></td></tr></table></figure></p>
+<p>接下来是设置日志是否输出文件名和行号，默认是不输出。这种输出可以设置输出深度，因为存在调用，所以通过设置输出深度来输出调用的信息。</p>
+<h3 id="API文档"><a href="#API文档" class="headerlink" title="API文档"></a>API文档</h3><p>beego提供了可以生成api文档的方式。beego通过注解路由的方式生成swagger标准的json格式，从而能通过swagger应用的方式展示给用户。<br>生成api文档的方式是在运行的时候加上参数<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bee run -downdoc=<span class="literal">true</span> -docgen=<span class="literal">true</span></span><br></pre></td></tr></table></figure></p>
+<p>其访问页面如下：<br><img src="/2018/04/07/beego使用(4)-其它说明/swagger页面.png"><br>这里可以看到有一些说明，这个在router.go顶部进行注释:<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// @APIVersion 1.0.0</span></span><br><span class="line"><span class="comment">// @Title test api</span></span><br><span class="line"><span class="comment">// @Description test api</span></span><br><span class="line"><span class="comment">// @Contact xxx@email.com</span></span><br></pre></td></tr></table></figure></p>
+<p>其访问地址默认是swagger为URI的，这里改成了doc，在router.go的init中修改：<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">beego.BConfig.WebConfig.StaticDir[<span class="string">"/doc"</span>] = <span class="string">"swagger"</span></span><br></pre></td></tr></table></figure></p>
+<p>swagger页面根据api中的不同router分类，可以看到project下面有CURD操作。<br><img src="/2018/04/07/beego使用(4)-其它说明/项目接口.png"><br>对于每一个操作下面都可以展开看到参数和说明，也可以直接通过页面访问接口。<br><img src="/2018/04/07/beego使用(4)-其它说明/具体接口.png"></p>
+<h3 id="测试用例"><a href="#测试用例" class="headerlink" title="测试用例"></a>测试用例</h3><p>对于代码需要自己做单元测试。测试对于beego来说主要是api接口提供的Controller层，以及逻辑处理和orm的model层。对于model层直接import对应的模块然后调用函数测试返回值即可，这里说明一下api的测试。测试也需要有一个base.go文件，该文件主要用于提供测试需要用的一些基础操作，比如连接数据库，每次清空数据库，添加一些依赖数据的函数，判断结果的函数，以及模拟请求等。<br>init函数中连接数据库<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">init</span><span class="params">()</span></span> &#123;</span><br><span class="line">    _, file, _, _ := runtime.Caller(<span class="number">1</span>) </span><br><span class="line">    apppath, _ := filepath.Abs(filepath.Dir(filepath.Join(file, <span class="string">".."</span>+<span class="keyword">string</span>(filepath.Separator))))</span><br><span class="line">    orm.RegisterDataBase(<span class="string">"default"</span>, <span class="string">"mysql"</span>, <span class="string">"root@tcp(127.0.0.1:3306)/test_db?charset=utf8&amp;loc=Asia%2FShanghai"</span>, <span class="number">30</span>)</span><br><span class="line">    beego.TestBeegoInit(apppath)    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>其中显示获取当前文件路径，然后定位到app路径，然后启动测试。<br>在每个函数测试之前应该清空数据库，所以设置一个清空数据库的函数，在每个测试用例中写入。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">setUp</span><span class="params">()</span></span> &#123;                 </span><br><span class="line">    orm.RunSyncdb(<span class="string">"default"</span>, <span class="literal">true</span>, <span class="literal">false</span>) <span class="comment">//rebuild all tables</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>发送请求的函数<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">sendRequest</span><span class="params">(t *testing.T, method, url <span class="keyword">string</span>, params *Params)</span> <span class="params">(rsp *controllers.APIRsp)</span></span> &#123;</span><br><span class="line">    <span class="keyword">var</span> rd io.Reader           </span><br><span class="line">    <span class="keyword">if</span> params != <span class="literal">nil</span> &#123;         </span><br><span class="line">        p := params.Encode()   </span><br><span class="line">        <span class="keyword">if</span> method == <span class="string">"GET"</span> &#123;   </span><br><span class="line">            url = fmt.Sprintf(<span class="string">"%s?%s"</span>, url, p)</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;               </span><br><span class="line">            rd = strings.NewReader(params.Encode())</span><br><span class="line">        &#125;                      </span><br><span class="line">    &#125;</span><br><span class="line">    r, err := http.NewRequest(method, url, rd)</span><br><span class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">        t.Fatalf(<span class="string">"gen request err|%v"</span>, err)</span><br><span class="line">    &#125;</span><br><span class="line">    r.Header.Set(<span class="string">"Content-Type"</span>, <span class="string">"application/x-www-form-urlencoded"</span>)</span><br><span class="line">    w := httptest.NewRecorder()</span><br><span class="line">    beego.BeeApp.Handlers.ServeHTTP(w, r)</span><br><span class="line">    assertEqual(t, w.Code, <span class="number">200</span>, <span class="string">"statu code err|%d"</span>, w.Code)</span><br><span class="line">    rsp = <span class="built_in">new</span>(controllers.APIRsp)</span><br><span class="line">    bs := w.Body.Bytes()</span><br><span class="line">    err = json.Unmarshal(bs, rsp)</span><br><span class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">        t.Fatalf(<span class="string">"unmarshal rsp|%v"</span>, err)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>由于有些请求比如查询需要有数据，这时应该先提供数据插入的函数。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">addEntity</span><span class="params">(v <span class="keyword">interface</span>&#123;&#125;)</span> <span class="params">(id <span class="keyword">int64</span>, err error)</span></span> &#123;</span><br><span class="line">    o := orm.NewOrm()</span><br><span class="line">    id, err = o.Insert(v)</span><br><span class="line">    <span class="keyword">return</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>对于响应内容，我们需要判断是否正确，一般是要给出等于或者不等于的判断。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">assertEqual</span><span class="params">(t *testing.T, a, b <span class="keyword">interface</span>&#123;&#125;, msg <span class="keyword">string</span>, intf ...<span class="keyword">interface</span>&#123;&#125;)</span></span> &#123;</span><br><span class="line">    <span class="keyword">if</span> !reflect.DeepEqual(a, b) &#123;</span><br><span class="line">        t.Fatalf(msg, intf...)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">assertNotEqual</span><span class="params">(t *testing.T, a, b <span class="keyword">interface</span>&#123;&#125;, msg <span class="keyword">string</span>, intf ...<span class="keyword">interface</span>&#123;&#125;)</span></span> &#123;</span><br><span class="line">    <span class="keyword">if</span> reflect.DeepEqual(a, b) &#123;</span><br><span class="line">        t.Fatalf(msg, intf...)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>下面是具体的测试用例，以上节的TestUser为例，用例需要以Test开头。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestUser_Query_By_Name</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">    setUp()</span><br><span class="line">    models.AddTestUser(&amp;models.TestUser&#123;Name: <span class="string">"x1"</span>&#125;)</span><br><span class="line">    models.AddTestUser(&amp;models.TestUser&#123;Name: <span class="string">"x2"</span>&#125;)</span><br><span class="line">    </span><br><span class="line">    params := Params&#123;<span class="string">"name"</span>: <span class="string">"x"</span>&#125;   </span><br><span class="line">    rsp := sendRequest(t, <span class="string">"GET"</span>, <span class="string">"/api/testuser/query"</span>, &amp;params)</span><br><span class="line">    assertEqual(t, rsp.Code, <span class="number">0</span>, <span class="string">"code err|%v"</span>, rsp.Msg)</span><br><span class="line">    </span><br><span class="line">    data := rsp.Data.(<span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">interface</span>&#123;&#125;)</span><br><span class="line">    assertEqual(t, data[<span class="string">"total"</span>], <span class="keyword">float64</span>(<span class="number">2</span>), <span class="string">"total err|%v"</span>, data[<span class="string">"total"</span>])</span><br><span class="line">    items := data[<span class="string">"items"</span>].([]<span class="keyword">interface</span>&#123;&#125;)</span><br><span class="line">    names := []<span class="keyword">string</span>&#123;&#125;        </span><br><span class="line">    <span class="keyword">for</span> _, item := <span class="keyword">range</span> items &#123;    </span><br><span class="line">        i := item.(<span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">interface</span>&#123;&#125;)</span><br><span class="line">        names = <span class="built_in">append</span>(names, i[<span class="string">"name"</span>].(<span class="keyword">string</span>))</span><br><span class="line">    &#125;</span><br><span class="line">    assertEqual(t, names, []<span class="keyword">string</span>&#123;<span class="string">"x1"</span>, <span class="string">"x2"</span>&#125;, <span class="string">"items err|%v"</span>, names)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>另外对于有第三方调用的http请求使用mock的方式模拟数据。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">registerTestAPIMock</span><span class="params">(method, url, rsp <span class="keyword">string</span>)</span></span> &#123;</span><br><span class="line">    url = fmt.Sprintf(<span class="string">"http://%s%s"</span>, beego.AppConfig.String(<span class="string">"TESTAPI_HOST"</span>), url)                                                                                                                                    </span><br><span class="line">    httpmock.RegisterResponder(method, url,</span><br><span class="line">        httpmock.NewStringResponder(<span class="number">200</span>, rsp))                                                                                                                                   </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>测试用例的执行可以按函数执行，也可以按文件执行：<br>go test -v -test.run + 函数<br>go test -v 测试文件</p>
+<h3 id="前端设置"><a href="#前端设置" class="headerlink" title="前端设置"></a>前端设置</h3><p>Controller中已经说明了view中存放html主页，以及在static中存放js、css等文件。这里说明可以通过设置开启静态文件的列表显示，在router.go中加入设置：<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">beego.BConfig.WebConfig.DirectoryIndex = <span class="literal">true</span></span><br><span class="line">beego.BConfig.WebConfig.StaticDir[<span class="string">"/static"</span>] = <span class="string">"static"</span></span><br></pre></td></tr></table></figure></p>
+<p>效果如下：<br><img src="/2018/04/07/beego使用(4)-其它说明/static列表.png"></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/go/" rel="tag"># go</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/31/beego使用(3)-模型/" rel="next" title="beego使用(3)-模型">
+                <i class="fa fa-chevron-left"></i> beego使用(3)-模型
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/04/13/python内存管理/" rel="prev" title="python内存管理">
+                python内存管理 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/mineavatar.jpg"
+               alt="sawyer" />
+          <p class="site-author-name" itemprop="name">sawyer</p>
+           
+              <p class="site-description motion-element" itemprop="description">如切如磋，如琢如磨</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">15</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#日志"><span class="nav-number">1.</span> <span class="nav-text">日志</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#API文档"><span class="nav-number">2.</span> <span class="nav-text">API文档</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#测试用例"><span class="nav-number">3.</span> <span class="nav-text">测试用例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#前端设置"><span class="nav-number">4.</span> <span class="nav-text">前端设置</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">sawyer</span>
+</div>
+
+
+<!--
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+-->
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i> 访问人数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i> 访问总量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

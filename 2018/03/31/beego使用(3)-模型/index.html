@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="go," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="模型主要用于和数据库交互，beego提供了ORM，其借鉴了Django和SQLAlchemy的使用方法，在beego中有一些比较特殊的模型定义方法，下面会依次说明。和控制器一样，模型也会有基类，用于一些通用的字段，最常见的是Createtime和Updatetime以及id等。 Base基类基类中主要定义CreateTime和UpdateTime，其类型是time.Time，而在定义之后还有描述，">
+<meta name="keywords" content="go">
+<meta property="og:type" content="article">
+<meta property="og:title" content="beego使用(3)-模型">
+<meta property="og:url" content="http://yoursite.com/2018/03/31/beego使用(3)-模型/index.html">
+<meta property="og:site_name" content="Yun&#39;s Blog">
+<meta property="og:description" content="模型主要用于和数据库交互，beego提供了ORM，其借鉴了Django和SQLAlchemy的使用方法，在beego中有一些比较特殊的模型定义方法，下面会依次说明。和控制器一样，模型也会有基类，用于一些通用的字段，最常见的是Createtime和Updatetime以及id等。 Base基类基类中主要定义CreateTime和UpdateTime，其类型是time.Time，而在定义之后还有描述，">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-08-04T03:50:45.571Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="beego使用(3)-模型">
+<meta name="twitter:description" content="模型主要用于和数据库交互，beego提供了ORM，其借鉴了Django和SQLAlchemy的使用方法，在beego中有一些比较特殊的模型定义方法，下面会依次说明。和控制器一样，模型也会有基类，用于一些通用的字段，最常见的是Createtime和Updatetime以及id等。 Base基类基类中主要定义CreateTime和UpdateTime，其类型是time.Time，而在定义之后还有描述，">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/03/31/beego使用(3)-模型/"/>
+
+
+
+
+
+  <title>beego使用(3)-模型 | Yun's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Yun's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/31/beego使用(3)-模型/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sawyer">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/mineavatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Yun's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">beego使用(3)-模型</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-31T15:11:11+08:00">
+                2018-03-31
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/beego使用/" itemprop="url" rel="index">
+                    <span itemprop="name">beego使用</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i> 浏览
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>次
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>模型主要用于和数据库交互，beego提供了ORM，其借鉴了Django和SQLAlchemy的使用方法，在beego中有一些比较特殊的模型定义方法，下面会依次说明。和控制器一样，模型也会有基类，用于一些通用的字段，最常见的是Createtime和Updatetime以及id等。</p>
+<h3 id="Base基类"><a href="#Base基类" class="headerlink" title="Base基类"></a>Base基类</h3><p>基类中主要定义CreateTime和UpdateTime，其类型是time.Time，而在定义之后还有描述，这个是模型定义特殊的地方，通过这种描述来说明该数据在数据库或者其它情况下的特性。比如这里的CreateTime定义了orm，表示创建时候自动更新，而UpdateTime里面是自动更新，用type指定了mysql里面的类型，并用index设置了索引。而后面的json设置主要是在以json格式返回的时候不返回。而JsonCreateTime则是专门为json返回设置，json中的定义就是返回该属性的属性名，这样设置是因为数据库的CreateTime并不是我们常用的”xxxx-xx-xx”这种类似的格式，而其orm设置为”-“则不再数据库记录。由于需要返回json格式的时间，所以这里需要重定义time.Time的MarshalJSON函数，该函数在将对像转化为json格式的时候调用。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> models </span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">"fmt"</span></span><br><span class="line">    <span class="string">"time"</span></span><br><span class="line">)   </span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> JsonTime time.Time</span><br><span class="line"><span class="keyword">type</span> Filters <span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">string</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(jt JsonTime)</span> <span class="title">MarshalJSON</span><span class="params">()</span> <span class="params">([]<span class="keyword">byte</span>, error)</span></span> &#123; </span><br><span class="line">    s := time.Time(jt).Format(<span class="string">"2006-01-02 15:04:05"</span>)</span><br><span class="line">    s = fmt.Sprintf(<span class="string">`"%s"`</span>, s) </span><br><span class="line">    <span class="keyword">return</span> []<span class="keyword">byte</span>(s), <span class="literal">nil</span>      </span><br><span class="line">&#125;   </span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Base <span class="keyword">struct</span> &#123;             </span><br><span class="line">    CreateTime     time.Time <span class="string">`orm:"auto_now_add;type(datetime);index" json:"-"`</span></span><br><span class="line">    UpdateTime     time.Time <span class="string">`orm:"auto_now;type(datetime);index" json:"-"`</span></span><br><span class="line">    JsonCreateTime JsonTime  <span class="string">`orm:"-" json:"create_time"`</span></span><br><span class="line">    JsonUpdateTime JsonTime  <span class="string">`orm:"-" json:"update_time"`</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(u *Base)</span> <span class="title">TableEngine</span><span class="params">()</span> <span class="title">string</span></span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">"INNODB"</span>            </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>以上代码中重新定义新的时间类型是因为原本的time.Time的MarshalJSON函数会转化成UTC的时间格式，所以想要得到想要的只能重定义。</p>
+<h3 id="实例类型"><a href="#实例类型" class="headerlink" title="实例类型"></a>实例类型</h3><p>下面给出了一个讲解的例子，定义了一个用户类。其中包括Id和Name，id是自增长的，name是一个128字节的字符串类型，这里使用了form，这个设置用于可以和数据库绑定操作。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> TestUser <span class="keyword">struct</span> &#123;</span><br><span class="line">    Id         <span class="keyword">int64</span>  <span class="string">`orm:"auto" json:"id" form:"-"`</span> </span><br><span class="line">    Name       <span class="keyword">string</span> <span class="string">`orm:"size(128);index" json:"name" form:"name"`</span></span><br><span class="line">    Base</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>由于这里继承了Base，所以需要重写MarshalJSON函数，用于转换时间，这里可以看到用了type，这主要是因为json.Marshal对某个对象进行json格式化的时候，会调用该对象的MarshalJSON函数，这样会调用死循环。所以用type重命名后只继承了属性，没有继承方法。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(tu TestUser)</span> <span class="title">MarshalJSON</span><span class="params">()</span> <span class="params">([]<span class="keyword">byte</span>, error)</span></span> &#123; </span><br><span class="line">    tu.JsonCreateTime, tu.JsonUpdateTime = JsonTime(ct.CreateTime), JsonTime(ct.UpdateTime)</span><br><span class="line">    <span class="keyword">type</span> Alias TestUser</span><br><span class="line">    t, err := json.Marshal(Alias(tu))</span><br><span class="line">    <span class="keyword">return</span> t, err   </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>下面是对数据库的设置，通过该函数可以设置某个或几个属性的唯一性。比如这里将Name设置成了唯一。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(tu *TestUser)</span> <span class="title">TableUnique</span><span class="params">()</span> [][]<span class="title">string</span></span> &#123;</span><br><span class="line">    <span class="keyword">return</span> [][]<span class="keyword">string</span>&#123;         </span><br><span class="line">        []<span class="keyword">string</span>&#123;<span class="string">"Name"</span>&#125;,</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>在具体model中init函数中要注册对应的对象，这里就是让TestUser注册到orm中。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">init</span><span class="params">()</span></span> &#123;</span><br><span class="line">    orm.RegisterModel(<span class="built_in">new</span>(TestUser))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>而对于model的具体实现则是定义TestUser的成员函数。比如下面这种：<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">AddUser</span><span class="params">(u *TestUser)</span> <span class="params">(u *TestUser, err error)</span></span> &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="ORM的基本操作"><a href="#ORM的基本操作" class="headerlink" title="ORM的基本操作"></a>ORM的基本操作</h3><p>1、添加<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">o := orm.NewOrm()</span><br><span class="line">id, err := o.Insert(obj)</span><br></pre></td></tr></table></figure></p>
+<p>2、删除<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">o := orm.NewOrm()</span><br><span class="line">_, err := o.Delete(obj)</span><br><span class="line">_, err = o.QueryTable(<span class="built_in">new</span>(TestUser)).Filter(<span class="string">"id"</span>, id).Delete()</span><br></pre></td></tr></table></figure></p>
+<p>3、更新<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">o := orm.NewOrm()</span><br><span class="line">obj.prop=value</span><br><span class="line">_, err := o.Update(obj)</span><br></pre></td></tr></table></figure></p>
+<p>4、查询<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">o := orm.NewOrm()</span><br><span class="line">u := <span class="built_in">new</span>(TestUser)</span><br><span class="line">_, err := o.QueryTable(<span class="string">"test_user"</span>).Filter(<span class="string">"id"</span>, id).Filter(<span class="string">"name"</span>, name).One(u)</span><br></pre></td></tr></table></figure></p>
+<p>在beego中定义的struc使用orm在数据库生成的时候会将大写字母变成小写，并以大写字母为标志用下划线分隔。比如AaaBbb会编程aaa_bbb这种，表名也是如此。除了使用表名也可以直接使用对象查询，比如下面这样：<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">_, err := o.QueryTable(<span class="built_in">new</span>(TestUser)).Filter(<span class="string">"id"</span>, id).Filter(<span class="string">"name"</span>, name).One(u)</span><br></pre></td></tr></table></figure></p>
+<p>对于多个对象的查询<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">us := []TestUser&#123;&#125;</span><br><span class="line">o := orm.NewOrm()</span><br><span class="line">_, err = o.QueryTable(<span class="string">"test_user"</span>).Filter(<span class="string">"name"</span>,name).All(&amp;us)</span><br></pre></td></tr></table></figure></p>
+<p>分页查询<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">qs := o.QueryTable(<span class="string">"test_user"</span>)</span><br><span class="line">total, err = qs.Count()</span><br><span class="line">offset := (page - <span class="number">1</span>) * pagesizeqs </span><br><span class="line">_, err = qs.Limit(pagesize, offset).All(&amp;us)</span><br></pre></td></tr></table></figure></p>
+<p>排序<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">qs.OrderBy([]<span class="keyword">string</span>&#123;<span class="string">"-id"</span>&#125;...)</span><br></pre></td></tr></table></figure></p>
+<p>数组类型查询<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">qs.Filter(<span class="string">"id__in"</span>, Ids...)</span><br></pre></td></tr></table></figure></p>
+<p>模糊查询<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">qs.Filter(<span class="string">"name__startswith"</span>, v)</span><br></pre></td></tr></table></figure></p>
+<p>判断是否有结果<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">qs.Exist()</span><br></pre></td></tr></table></figure></p>
+<p>5、事务<br>由于有些情况下面需要进行多次数据库操作，所以需要用到事务处理。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">o := orm.NewOrm()</span><br><span class="line"><span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">if</span> r := <span class="built_in">recover</span>(); r != <span class="literal">nil</span> &#123;       </span><br><span class="line">        err = errors.New(fmt.Sprintf(<span class="string">"panic|%v"</span>, r))</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">        o.Rollback()       </span><br><span class="line">    &#125;</span><br><span class="line">&#125;()</span><br><span class="line">o.Begin</span><br><span class="line">o.Commit()</span><br></pre></td></tr></table></figure></p>
+<h3 id="数据库注册"><a href="#数据库注册" class="headerlink" title="数据库注册"></a>数据库注册</h3><p>数据库注册是需要写在程序开始的时候，所以是在main.go的init函数中。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">dbUri := beego.AppConfig.String(<span class="string">"database"</span>)</span><br><span class="line">orm.RegisterDataBase(<span class="string">"default"</span>, <span class="string">"mysql"</span>, dbUri, <span class="number">31</span>, <span class="number">800</span>)</span><br></pre></td></tr></table></figure></p>
+<p>其中配置文件中有：<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">database = root@tcp(<span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">3306</span>)/testdb?charset=utf8&amp;loc=Asia%<span class="number">2</span>FShanghai</span><br></pre></td></tr></table></figure></p>
+<p>如果需要重新创建数据表<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">orm.RunSyncdb(<span class="string">"default"</span>, <span class="literal">false</span>, <span class="literal">false</span>)</span><br></pre></td></tr></table></figure></p>
+<p>第三个参数true表示表存在则给出提示。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/go/" rel="tag"># go</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/25/beego使用(2)-控制器/" rel="next" title="beego使用(2)-控制器">
+                <i class="fa fa-chevron-left"></i> beego使用(2)-控制器
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/04/07/beego使用(4)-其它说明/" rel="prev" title="beego使用(4)-其它说明">
+                beego使用(4)-其它说明 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/mineavatar.jpg"
+               alt="sawyer" />
+          <p class="site-author-name" itemprop="name">sawyer</p>
+           
+              <p class="site-description motion-element" itemprop="description">如切如磋，如琢如磨</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">15</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Base基类"><span class="nav-number">1.</span> <span class="nav-text">Base基类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实例类型"><span class="nav-number">2.</span> <span class="nav-text">实例类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ORM的基本操作"><span class="nav-number">3.</span> <span class="nav-text">ORM的基本操作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#数据库注册"><span class="nav-number">4.</span> <span class="nav-text">数据库注册</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">sawyer</span>
+</div>
+
+
+<!--
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+-->
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i> 访问人数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i> 访问总量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

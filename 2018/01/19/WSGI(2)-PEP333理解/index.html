@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="python," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="通过上一节，可以知道wsgi是什么，将里面的各种名词做了对比说明。PEP333是该协议的描述，具体说明了该协议的实现，这节将仔细了解该协议细节。PEP333中主要规定了wsgi中三个不同的组件的细节，分别是应用、服务器、中间件。在分别说明它们之前需要明确应用程序被执行是通过服务器对应用程序的调用，这种调用可以有2种不同的理解，一个是调用形式或者说方式，一个是传递给服务器的方式。下图中说明了2种不同">
+<meta name="keywords" content="python">
+<meta property="og:type" content="article">
+<meta property="og:title" content="WSGI(2)-PEP333理解">
+<meta property="og:url" content="http://yoursite.com/2018/01/19/WSGI(2)-PEP333理解/index.html">
+<meta property="og:site_name" content="Yun&#39;s Blog">
+<meta property="og:description" content="通过上一节，可以知道wsgi是什么，将里面的各种名词做了对比说明。PEP333是该协议的描述，具体说明了该协议的实现，这节将仔细了解该协议细节。PEP333中主要规定了wsgi中三个不同的组件的细节，分别是应用、服务器、中间件。在分别说明它们之前需要明确应用程序被执行是通过服务器对应用程序的调用，这种调用可以有2种不同的理解，一个是调用形式或者说方式，一个是传递给服务器的方式。下图中说明了2种不同">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2018/01/19/WSGI(2)-PEP333理解/调用.png">
+<meta property="og:image" content="http://yoursite.com/2018/01/19/WSGI(2)-PEP333理解/wsgi结构图.png">
+<meta property="og:updated_time" content="2018-08-04T03:50:45.564Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="WSGI(2)-PEP333理解">
+<meta name="twitter:description" content="通过上一节，可以知道wsgi是什么，将里面的各种名词做了对比说明。PEP333是该协议的描述，具体说明了该协议的实现，这节将仔细了解该协议细节。PEP333中主要规定了wsgi中三个不同的组件的细节，分别是应用、服务器、中间件。在分别说明它们之前需要明确应用程序被执行是通过服务器对应用程序的调用，这种调用可以有2种不同的理解，一个是调用形式或者说方式，一个是传递给服务器的方式。下图中说明了2种不同">
+<meta name="twitter:image" content="http://yoursite.com/2018/01/19/WSGI(2)-PEP333理解/调用.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/01/19/WSGI(2)-PEP333理解/"/>
+
+
+
+
+
+  <title>WSGI(2)-PEP333理解 | Yun's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Yun's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/01/19/WSGI(2)-PEP333理解/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sawyer">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/mineavatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Yun's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">WSGI(2)-PEP333理解</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-19T21:19:19+08:00">
+                2018-01-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/WSGI/" itemprop="url" rel="index">
+                    <span itemprop="name">WSGI</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i> 浏览
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>次
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>通过上一节，可以知道wsgi是什么，将里面的各种名词做了对比说明。PEP333是该协议的描述，具体说明了该协议的实现，这节将仔细了解该协议细节。PEP333中主要规定了wsgi中三个不同的组件的细节，分别是应用、服务器、中间件。<br>在分别说明它们之前需要明确应用程序被执行是通过服务器对应用程序的调用，这种调用可以有2种不同的理解，一个是调用形式或者说方式，一个是传递给服务器的方式。下图中说明了2种不同的传递方式和2种调用形式。<br><img src="/2018/01/19/WSGI(2)-PEP333理解/调用.png"><br>图中当一个请求过来时，服务器可以通过不同的方式获取应用程序的逻辑部分。图a中通过一个脚本，脚本中调用了server的api，将app的逻辑部分（fn或者obj）作为参数传递给server的api，服务器得到逻辑部分就可以执行。图b中则是需要配置config，而请求过来时server去config中读取逻辑部分的信息，然后再进行处理。调用形式主要是指一种具体的语法现象，比如上图中server中对函数调用的写法（fn(a,b)），类的写法（obj.method(a,b)），这是两种不同的调用形式。wsgi定义了这种调用形式，却没有规定服务器通过什么方式获取逻辑部分的信息，给了server自己实现的空间。规范中引入了一个名词callable，很多翻译称为可调用者。规范将其解释为一个函数、方法、类或者一个实现了__call__的实例。</p>
+<blockquote>
+<p>we will use the term “a callable” to mean “a function, method, class, or an instance with a __call__ method”. </p>
+</blockquote>
+<p>因为python里面函数、类、方法等各种实现都是对象，都可以作为参数进行传递和调用。</p>
+<h3 id="wsgi应用"><a href="#wsgi应用" class="headerlink" title="wsgi应用"></a>wsgi应用</h3><p>通过以上的说明可以知道应用应该要提供一个可以给服务器调用的callable，另外该callable可以接受参数，并且调用后应该有返回，wsgi对此进行了规定：</p>
+<ol>
+<li>应用程序对象要是一个可以接受2个位置参数的可调用对象。这里是位置参数，不是关键字参数，因此参数的命名也不是规定好的。</li>
+<li>应用程序应该可以被多次调用。因为请求肯定是会重复的。</li>
+</ol>
+<p>需要注意的是这里的应用程序对象只是指代了是应用程序端，并不是具体的应用程序，wsgi还是只在服务端和框架间做连接，不直接对应用程序编写提供支持，所以应用程序使用相应的框架就可以了，不需要通过api去调用wsgi。通过上面的描述可以知道应用在服务端的调用如下：<br>result = application(environ,start_response)<br>其中environ和start_response只是为了方便说明取的名字，实际中可以按自己需求取名字。<br>下面对参数好返回值进行说明：<br>1、environ<br>python中这是一个字典对象，是一个cgi风格的环境变量。这里要求必须是内置字典对象，不能派生。这里environ里面会包含一些wsgi所需的变量，也可以是服务器扩展的变量，具体的说明可以参考PEP333规范。<br>2、start_response<br>这个参数也是一个callable，用于在应用程序中调用。必须接受2个位置参数和1个可选参数。形式如下：<br>start_response(status,response_headers,exc_info=None)<br>其中，status参数形式是”200 message”，即状态码+message的字符串；<br>response_headers参数是一个元组，形式是(header_name，header_value)，用于描述http响应头，例如<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">response_headers = [(&apos;Content-Type&apos;, &apos;text/plain&apos;), (&apos;Content-Length&apos;, str(len(response_body)))]；</span><br></pre></td></tr></table></figure></p>
+<p>exc_info参数在捕捉到错误并需要在浏览器中显示的时候才需要。<br>其返回值要求返回一个write(body_data)的callable，body_data内容将被当成HTTP响应体的一部分输出。这里也不是一定需要返回write的，也可以什么不返回。<br>3、返回值<br>返回一个可迭代对象，能够生成0个或多个字符串。因此可以是列表，也可以是一个生成器，甚至可以应用程序本身就是一个可迭代的类的实例。如果是一个生成器，则需要实现一个close()方法，服务器端通过验证是否有close,在程序终止或者异常结束的时候调用，从而实现对生成器的支持。<br>返回的时候server会通过一种无缓冲的方式传送到客户端，并在传完一个字符串后再请求下一个字符串。服务器端通过len(iterable)来验证结果是否可以信任，因此返回值需要实现__len__()方法。服务器端一般不使用任何返回值的其它属性，除了是针对服务器的特殊情况。</p>
+<h3 id="wsgi服务器"><a href="#wsgi服务器" class="headerlink" title="wsgi服务器"></a>wsgi服务器</h3><p>服务器端的规范为：</p>
+<ol>
+<li>需要有能够接受application的实现。比如提供一个接受application对象的api；</li>
+<li>需要提供application需要的参数environ和start_response，从而调用application；<br>application对start_response的调用只是看上去发起了一个响应，将响应头传送给客户端，实际上并不是，而是存储下来等待server来传送。当然还需要application调用返回了非空的字符串，或者应用程序调用中start_response的write方法可以被调用，即有了响应体数据时候才可以发送。这样使得在body完全生成之前，服务器还可以替换任何响应头信息，从而能够保证响应头没有问题。<br>exc_info参数是一个元组。在start_response被错误处理的程序调用时需要提供，如果http响应头信息没有被发送则替换缓存的http响应头，从而输出错误信息，如果已经发送了http信息，start_response必须抛出错误信息，这样应用程序会捕获信息，但是由于如果返回了响应头后再次返回错误信息给浏览器的方式不安全，所以应该避免去捕获信息，而是将异常传给服务器。</li>
+<li>能够处理application返回值，作为响应体返回给客户端。</li>
+</ol>
+<h3 id="中间件"><a href="#中间件" class="headerlink" title="中间件"></a>中间件</h3><p>因为中间件处于服务器和应用中间，而信息可以双向流动，所以中间件既可以扮演服务器加工服务器到应用的数据，也可以为扮演应用加工应用到服务器的数据。可以执行如下一些功能：</p>
+<ol>
+<li>可以做路由转发，重写environ变量。</li>
+<li>用于多个应用程序在进程中多线程运行。</li>
+<li>做负载均衡。</li>
+<li>对上下问加工，比如生成特定格式的数据。</li>
+</ol>
+<h3 id="整体说明"><a href="#整体说明" class="headerlink" title="整体说明"></a>整体说明</h3><p>根据上面的说明，这里做一个整体的说明。<br><img src="/2018/01/19/WSGI(2)-PEP333理解/wsgi结构图.png"><br>通过上图可以看出，request被server进行处理生成environ，然后将environ和start_response作为app的参数，调用app，app被调用后，再调用start_response参数，该参数会生成响应状态status和响应头header，此后app返回body，然后server将响应头、响应状态以及响应内容一起做为客户端的内容。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/python/" rel="tag"># python</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/01/12/WSGI(1)-WSGI理解/" rel="next" title="WSGI(1):WSGI理解">
+                <i class="fa fa-chevron-left"></i> WSGI(1):WSGI理解
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/01/26/WSGI(3)-应用实现示例/" rel="prev" title="WSGI(3)-应用实现示例">
+                WSGI(3)-应用实现示例 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/mineavatar.jpg"
+               alt="sawyer" />
+          <p class="site-author-name" itemprop="name">sawyer</p>
+           
+              <p class="site-description motion-element" itemprop="description">如切如磋，如琢如磨</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">15</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#wsgi应用"><span class="nav-number">1.</span> <span class="nav-text">wsgi应用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#wsgi服务器"><span class="nav-number">2.</span> <span class="nav-text">wsgi服务器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#中间件"><span class="nav-number">3.</span> <span class="nav-text">中间件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#整体说明"><span class="nav-number">4.</span> <span class="nav-text">整体说明</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">sawyer</span>
+</div>
+
+
+<!--
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+-->
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i> 访问人数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i> 访问总量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
